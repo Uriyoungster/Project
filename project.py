@@ -5,35 +5,27 @@ st.title("🐍 משחק הנחש")
 html_code = """
 <!DOCTYPE html>
 <html>
-<head>
-<style>
-  canvas { background: black; display: block; margin: auto; }
-  body { text-align: center; color: white; }
-</style>
-</head>
-<body>
+<body style="text-align:center; background:black; color:white;">
 
 <h2 id="score">ניקוד: 0</h2>
-<canvas id="game" width="400" height="400"></canvas>
+<canvas id="game" width="400" height="400" style="background:black;"></canvas>
 
 <script>
-let canvas = document.getElementById("game");
-let ctx = canvas.getContext("2d");
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
 
-let grid = 20;
-let count = 0;
-let speed = 8;
-
+const grid = 20;
 let snake = [{x: 160, y: 160}];
 let dx = grid;
 let dy = 0;
 
 let apple = {
-  x: Math.floor(Math.random() * 20) * grid,
-  y: Math.floor(Math.random() * 20) * grid
+  x: 320,
+  y: 320
 };
 
 let score = 0;
+let speed = 120;
 
 document.addEventListener("keydown", function(e) {
   if (e.key === "ArrowLeft" && dx === 0) {
@@ -48,65 +40,57 @@ document.addEventListener("keydown", function(e) {
 });
 
 function gameLoop() {
-  requestAnimationFrame(gameLoop);
+  const head = {x: snake[0].x + dx, y: snake[0].y + dy};
 
-  if (++count < speed) return;
-  count = 0;
-
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-
-  snake[0].x += dx;
-  snake[0].y += dy;
-
-  // קירות
-  if (snake[0].x < 0 || snake[0].x >= canvas.width ||
-      snake[0].y < 0 || snake[0].y >= canvas.height) {
+  // התנגשות בקיר
+  if (head.x < 0 || head.y < 0 || head.x >= 400 || head.y >= 400) {
     alert("הפסדת! ניקוד: " + score);
     location.reload();
   }
 
-  // תפוח
-  if (snake[0].x === apple.x && snake[0].y === apple.y) {
+  // התנגשות בעצמך
+  for (let cell of snake) {
+    if (cell.x === head.x && cell.y === head.y) {
+      alert("נפסלת! ניקוד: " + score);
+      location.reload();
+    }
+  }
+
+  snake.unshift(head);
+
+  // אכילת תפוח
+  if (head.x === apple.x && head.y === apple.y) {
     score++;
     document.getElementById("score").innerText = "ניקוד: " + score;
 
     // מהירות עולה
-    if (speed > 2) speed--;
+    if (speed > 40) speed -= 5;
 
     apple.x = Math.floor(Math.random() * 20) * grid;
     apple.y = Math.floor(Math.random() * 20) * grid;
-
   } else {
     snake.pop();
   }
 
-  // ציור נחש
-  ctx.fillStyle = "lime";
-  snake.forEach(function(cell, index) {
-    ctx.fillRect(cell.x, cell.y, grid-2, grid-2);
+  // ציור
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    if (index === 0) {
-      for (let i = index + 1; i < snake.length; i++) {
-        if (cell.x === snake[i].x && cell.y === snake[i].y) {
-          alert("נפסלת! ניקוד: " + score);
-          location.reload();
-        }
-      }
-    }
+  ctx.fillStyle = "lime";
+  snake.forEach(cell => {
+    ctx.fillRect(cell.x, cell.y, grid-2, grid-2);
   });
 
-  snake.unshift({x: snake[0].x, y: snake[0].y});
-
-  // ציור תפוח
   ctx.fillStyle = "red";
   ctx.fillRect(apple.x, apple.y, grid-2, grid-2);
+
+  setTimeout(gameLoop, speed);
 }
 
-requestAnimationFrame(gameLoop);
+gameLoop();
 </script>
 
 </body>
 </html>
 """
 
-st.components.v1.html(html_code, height=500)
+st.components.v1.html(html_code, height=450)
