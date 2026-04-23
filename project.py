@@ -1,6 +1,6 @@
 import streamlit as st
 
-st.title("🐍 משחק הנחש עם כוחות")
+st.title("🐍 משחק הנחש")
 
 html_code = """
 <!DOCTYPE html>
@@ -40,13 +40,15 @@ function resetGame() {
 
 function startGame() {
   resetGame();
-  canvas.focus();
   gameLoop();
 }
 
-canvas.setAttribute("tabindex","0");
+// 🎮 שליטה עם מקלדת (תוקן!)
+document.addEventListener("keydown", function(e) {
+  if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.key)) {
+    e.preventDefault();
+  }
 
-canvas.addEventListener("keydown", function(e) {
   if (e.key === "ArrowLeft" && dx === 0) {
     dx = -grid; dy = 0;
   } else if (e.key === "ArrowUp" && dy === 0) {
@@ -145,7 +147,6 @@ function gameLoop() {
 
   setTimeout(gameLoop, speed);
 }
-
 </script>
 
 </body>
