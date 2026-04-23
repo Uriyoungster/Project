@@ -5,10 +5,13 @@ st.title("🐍 משחק הנחש")
 html_code = """
 <!DOCTYPE html>
 <html>
-<body style="text-align:center; background:black; color:white;">
+<body style="text-align:center; margin:0;">
 
 <h2 id="score">ניקוד: 0</h2>
-<canvas id="game" width="400" height="400" style="background:black;"></canvas>
+
+<canvas id="game" width="400" height="400"
+style="background:black; display:block; margin:auto; border:2px solid gray;">
+</canvas>
 
 <script>
 const canvas = document.getElementById("game");
@@ -19,10 +22,7 @@ let snake = [{x: 160, y: 160}];
 let dx = grid;
 let dy = 0;
 
-let apple = {
-  x: 320,
-  y: 320
-};
+let apple = {x: 320, y: 320};
 
 let score = 0;
 let speed = 120;
@@ -42,13 +42,11 @@ document.addEventListener("keydown", function(e) {
 function gameLoop() {
   const head = {x: snake[0].x + dx, y: snake[0].y + dy};
 
-  // התנגשות בקיר
   if (head.x < 0 || head.y < 0 || head.x >= 400 || head.y >= 400) {
     alert("הפסדת! ניקוד: " + score);
     location.reload();
   }
 
-  // התנגשות בעצמך
   for (let cell of snake) {
     if (cell.x === head.x && cell.y === head.y) {
       alert("נפסלת! ניקוד: " + score);
@@ -58,12 +56,10 @@ function gameLoop() {
 
   snake.unshift(head);
 
-  // אכילת תפוח
   if (head.x === apple.x && head.y === apple.y) {
     score++;
     document.getElementById("score").innerText = "ניקוד: " + score;
 
-    // מהירות עולה
     if (speed > 40) speed -= 5;
 
     apple.x = Math.floor(Math.random() * 20) * grid;
@@ -72,7 +68,6 @@ function gameLoop() {
     snake.pop();
   }
 
-  // ציור
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   ctx.fillStyle = "lime";
@@ -93,4 +88,4 @@ gameLoop();
 </html>
 """
 
-st.components.v1.html(html_code, height=450)
+st.components.v1.html(html_code, height=500)
