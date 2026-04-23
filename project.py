@@ -1,6 +1,6 @@
 import streamlit as st
 
-st.title("🐍 Snake + Shop Edition")
+st.title("🐍 Snake - Power Shop Edition")
 
 html_code = """
 <!DOCTYPE html>
@@ -10,7 +10,7 @@ html_code = """
 <h2 id="score">נקודות: 0 | שיא: 0</h2>
 
 <button onclick="startGame()">התחל משחק</button>
-<button onclick="toggleShop()">🛒 חנות</button>
+<button onclick="toggleShop()">🛒 חנות כוחות</button>
 
 <br><br>
 
@@ -18,10 +18,16 @@ html_code = """
 style="background:#000; border:3px solid #444;"></canvas>
 
 <div id="shop" style="display:none; margin-top:10px; background:#222; padding:10px;">
-  <h3>🛒 חנות שדרוגים</h3>
-  <button onclick="buy('speed')">שדרוג מהירות (-נקודות ליותר שליטה)</button><br><br>
-  <button onclick="buy('shield')">שדרוג מגן (יותר חיים)</button><br><br>
-  <button onclick="buy('bonus')">שדרוג בונוס (+נקודות יותר חזק)</button>
+  <h3>🛒 חנות שדרוג כוחות</h3>
+
+  <p>❄️ Slow Upgrade - מחיר: 5 נקודות</p>
+  <button onclick="buy('slow')">שדרג האטה</button>
+
+  <p>🔵 Bonus Upgrade - מחיר: 7 נקודות</p>
+  <button onclick="buy('bonus')">שדרג בונוס</button>
+
+  <p>🛡️ Shield Upgrade - מחיר: 10 נקודות</p>
+  <button onclick="buy('shield')">שדרג מגן</button>
 </div>
 
 <script>
@@ -30,14 +36,14 @@ const ctx = canvas.getContext("2d");
 
 const grid = 20;
 
-let snake, dx, dy, apple;
+let snake, dx, dy, apple, power;
 let score, highscore = localStorage.getItem("hs") || 0;
 let speed, running;
 
-let upgrades = {
-  speed: 0,
-  shield: 0,
-  bonus: 0
+let powerLevel = {
+  slow: 1,
+  bonus: 1,
+  shield: 1
 };
 
 function randomPos(){
@@ -49,6 +55,7 @@ function reset(){
   dx = grid;
   dy = 0;
   apple = {x:randomPos(), y:randomPos()};
+  power = null;
   score = 0;
   speed = 120;
   running = true;
@@ -70,23 +77,24 @@ function toggleShop(){
   s.style.display = (s.style.display==="none")?"block":"none";
 }
 
+// 🛒 חנות שמשדרגת כוחות אמיתיים
 function buy(type){
-  if(type==="speed" && score>=5){
+  if(type==="slow" && score>=5){
     score -= 5;
-    upgrades.speed++;
+    powerLevel.slow++;
   }
-  if(type==="shield" && score>=7){
+  if(type==="bonus" && score>=7){
     score -= 7;
-    upgrades.shield++;
+    powerLevel.bonus++;
   }
-  if(type==="bonus" && score>=10){
+  if(type==="shield" && score>=10){
     score -= 10;
-    upgrades.bonus++;
+    powerLevel.shield++;
   }
   updateUI();
 }
 
-// 🎮 שליטה חלקה
+// 🎮 שליטה
 document.addEventListener("keydown", e=>{
   if(["ArrowLeft","ArrowRight","ArrowUp","ArrowDown"].includes(e.key))
     e.preventDefault();
@@ -106,65 +114,87 @@ function gameOver(){
   alert("הפסדת! ניקוד: "+score);
 }
 
-// 🎬 אנימציה חלקה יותר
+// 💥 יצירת כוח עם השפעה לפי שדרוגים
+function spawnPower(){
+  if(!power && Math.random()<0.08){
+    const types=["slow","bonus","shield"];
+    power={
+      x:randomPos(),
+      y:randomPos(),
+      type:types[Math.floor(Math.random()*types.length)]
+    };
+  }
+}
+
+function applyPower(type){
+  if(type==="slow"){
+    speed += 15 / powerLevel.slow;
+  }
+
+  if(type==="bonus"){
+    score += 1 * powerLevel.bonus;
+  }
+
+  if(type==="shield"){
+    snake.unshift({x:snake[0].x, y:snake[0].y}); // חיזוק גוף
+  }
+
+  updateUI();
+}
+
 function loop(){
   if(!running)return;
 
   const head = {x:snake[0].x+dx, y:snake[0].y+dy};
 
   if(head.x<0||head.y<0||head.x>=420||head.y>=420){
-    if(upgrades.shield>0){
-      upgrades.shield--;
-    } else {
-      gameOver(); return;
-    }
+    gameOver(); return;
   }
 
   for(let c of snake){
     if(c.x===head.x && c.y===head.y){
-      if(upgrades.shield>0){
-        upgrades.shield--;
-        break;
-      } else {
-        gameOver(); return;
-      }
+      gameOver(); return;
     }
   }
 
   snake.unshift(head);
 
   if(head.x===apple.x && head.y===apple.y){
-    score += 1 + upgrades.bonus;
+    score++;
     apple={x:randomPos(), y:randomPos()};
-    if(speed>50) speed -= 1;
+    if(speed>50) speed-=1;
     updateUI();
   } else {
     snake.pop();
   }
 
-  // ציור חלק
-  ctx.fillStyle="#000";
-  ctx.fillRect(0,0,420,420);
+  spawnPower();
 
-  // גריד עדין
-  ctx.strokeStyle="#111";
-  for(let i=0;i<420;i+=20){
-    ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,420);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(0,i);ctx.lineTo(420,i);ctx.stroke();
+  if(power && head.x===power.x && head.y===power.y){
+    applyPower(power.type);
+    power=null;
   }
 
-  // נחש עם אפקט זוהר
+  // ציור
+  ctx.clearRect(0,0,420,420);
+
   snake.forEach((c,i)=>{
-    ctx.fillStyle=i===0?"#00ff99":"#00cc66";
+    ctx.fillStyle=i===0?"#00ff99":"#00aa66";
     ctx.fillRect(c.x,c.y,grid-2,grid-2);
   });
 
-  // תפוח עם glow
-  ctx.shadowBlur=10;
-  ctx.shadowColor="red";
   ctx.fillStyle="red";
   ctx.fillRect(apple.x,apple.y,grid-2,grid-2);
-  ctx.shadowBlur=0;
+
+  if(power){
+    const colors={
+      slow:"cyan",
+      bonus:"blue",
+      shield:"gold"
+    };
+    ctx.fillStyle=colors[power.type];
+    ctx.fillRect(power.x,power.y,grid-2,grid-2);
+  }
 
   setTimeout(loop,speed);
 }
