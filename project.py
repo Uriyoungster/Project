@@ -5,29 +5,44 @@ st.title("🐍 משחק הנחש")
 html_code = """
 <!DOCTYPE html>
 <html>
-<body style="text-align:center; margin:0;">
+<body style="text-align:center; font-family:sans-serif;">
 
 <h2 id="score">ניקוד: 0</h2>
+<button onclick="startGame()">התחל משחק</button>
+
+<br><br>
 
 <canvas id="game" width="400" height="400"
-style="background:black; display:block; margin:auto; border:2px solid gray;">
-</canvas>
+style="background:black; border:2px solid gray;"></canvas>
 
 <script>
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
 const grid = 20;
-let snake = [{x: 160, y: 160}];
-let dx = grid;
-let dy = 0;
+let snake, dx, dy, apple, score, speed, running;
 
-let apple = {x: 320, y: 320};
+function resetGame() {
+  snake = [{x: 160, y: 160}];
+  dx = grid;
+  dy = 0;
+  apple = {x: 320, y: 320};
+  score = 0;
+  speed = 120;
+  running = true;
+  document.getElementById("score").innerText = "ניקוד: 0";
+}
 
-let score = 0;
-let speed = 120;
+function startGame() {
+  resetGame();
+  canvas.focus(); // חשוב!
+  gameLoop();
+}
 
-document.addEventListener("keydown", function(e) {
+// מאפשר פוקוס כדי שהמקלדת תעבוד
+canvas.setAttribute("tabindex","0");
+
+canvas.addEventListener("keydown", function(e) {
   if (e.key === "ArrowLeft" && dx === 0) {
     dx = -grid; dy = 0;
   } else if (e.key === "ArrowUp" && dy === 0) {
@@ -40,22 +55,29 @@ document.addEventListener("keydown", function(e) {
 });
 
 function gameLoop() {
+  if (!running) return;
+
   const head = {x: snake[0].x + dx, y: snake[0].y + dy};
 
+  // קירות
   if (head.x < 0 || head.y < 0 || head.x >= 400 || head.y >= 400) {
     alert("הפסדת! ניקוד: " + score);
-    location.reload();
+    running = false;
+    return;
   }
 
+  // פגיעה בעצמך
   for (let cell of snake) {
     if (cell.x === head.x && cell.y === head.y) {
       alert("נפסלת! ניקוד: " + score);
-      location.reload();
+      running = false;
+      return;
     }
   }
 
   snake.unshift(head);
 
+  // תפוח
   if (head.x === apple.x && head.y === apple.y) {
     score++;
     document.getElementById("score").innerText = "ניקוד: " + score;
@@ -68,6 +90,7 @@ function gameLoop() {
     snake.pop();
   }
 
+  // ציור
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   ctx.fillStyle = "lime";
@@ -80,12 +103,10 @@ function gameLoop() {
 
   setTimeout(gameLoop, speed);
 }
-
-gameLoop();
 </script>
 
 </body>
 </html>
 """
 
-st.components.v1.html(html_code, height=500)
+st.components.v1.html(html_code, height=550)
