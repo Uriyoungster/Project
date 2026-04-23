@@ -1,6 +1,6 @@
 import streamlit as st
 
-st.title("🐍 משחק הנחש")
+st.title("🐍 משחק הנחש עם כוחות")
 
 html_code = """
 <!DOCTYPE html>
@@ -20,13 +20,18 @@ const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
 const grid = 20;
-let snake, dx, dy, apple, score, speed, running;
+let snake, dx, dy, apple, power, score, speed, running;
+
+function randomPos() {
+  return Math.floor(Math.random() * 20) * grid;
+}
 
 function resetGame() {
   snake = [{x: 160, y: 160}];
   dx = grid;
   dy = 0;
-  apple = {x: 320, y: 320};
+  apple = {x: randomPos(), y: randomPos()};
+  power = null;
   score = 0;
   speed = 120;
   running = true;
@@ -35,11 +40,10 @@ function resetGame() {
 
 function startGame() {
   resetGame();
-  canvas.focus(); // חשוב!
+  canvas.focus();
   gameLoop();
 }
 
-// מאפשר פוקוס כדי שהמקלדת תעבוד
 canvas.setAttribute("tabindex","0");
 
 canvas.addEventListener("keydown", function(e) {
@@ -53,6 +57,17 @@ canvas.addEventListener("keydown", function(e) {
     dx = 0; dy = grid;
   }
 });
+
+function spawnPower() {
+  if (!power && Math.random() < 0.1) {
+    const types = ["slow", "bonus", "shrink"];
+    power = {
+      x: randomPos(),
+      y: randomPos(),
+      type: types[Math.floor(Math.random() * types.length)]
+    };
+  }
+}
 
 function gameLoop() {
   if (!running) return;
@@ -77,32 +92,60 @@ function gameLoop() {
 
   snake.unshift(head);
 
-  // תפוח
+  // תפוח רגיל
   if (head.x === apple.x && head.y === apple.y) {
     score++;
     document.getElementById("score").innerText = "ניקוד: " + score;
 
     if (speed > 40) speed -= 5;
 
-    apple.x = Math.floor(Math.random() * 20) * grid;
-    apple.y = Math.floor(Math.random() * 20) * grid;
+    apple = {x: randomPos(), y: randomPos()};
   } else {
     snake.pop();
+  }
+
+  // יצירת כוח
+  spawnPower();
+
+  // אכילת כוח
+  if (power && head.x === power.x && head.y === power.y) {
+    if (power.type === "slow") {
+      speed += 20;
+    } else if (power.type === "bonus") {
+      score += 5;
+    } else if (power.type === "shrink") {
+      snake.splice(-3);
+    }
+
+    document.getElementById("score").innerText = "ניקוד: " + score;
+    power = null;
   }
 
   // ציור
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+  // נחש
   ctx.fillStyle = "lime";
   snake.forEach(cell => {
     ctx.fillRect(cell.x, cell.y, grid-2, grid-2);
   });
 
+  // תפוח
   ctx.fillStyle = "red";
   ctx.fillRect(apple.x, apple.y, grid-2, grid-2);
 
+  // כוח
+  if (power) {
+    if (power.type === "slow") ctx.fillStyle = "yellow";
+    if (power.type === "bonus") ctx.fillStyle = "blue";
+    if (power.type === "shrink") ctx.fillStyle = "purple";
+
+    ctx.fillRect(power.x, power.y, grid-2, grid-2);
+  }
+
   setTimeout(gameLoop, speed);
 }
+
 </script>
 
 </body>
