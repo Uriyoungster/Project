@@ -424,8 +424,14 @@ def page_flappy():
     sh=oc("flappy_shield"); gap=110+oc("flappy_gap")*15
     slow_pipes = "true" if has("flappy_slow") else "false"
     hi=S("flappy_hi",0)
-    if sh or has("flappy_slow"): st.markdown(f"<div class='inf'>{'  |  '.join(filter(None,[f'🛡 {sh} shields' if sh else '',f'🐌 Slow pipes' if has('flappy_slow') else '',f'🔓 Gap +{oc(\"flappy_gap\")*15}' if has('flappy_gap') else '']))}</div>",unsafe_allow_html=True)
-    st.markdown("<br>",unsafe_allow_html=True)
+    if sh or has("flappy_slow"):
+        gap_count = oc("flappy_gap")
+        flappy_parts = filter(None, [
+            f'🛡 {sh} shields' if sh else '',
+            '🐌 Slow pipes' if has('flappy_slow') else '',
+            f'🔓 Gap +{gap_count * 15}' if has('flappy_gap') else '',
+        ])
+        st.markdown(f"<div class='inf'>{'  |  '.join(flappy_parts)}</div>", unsafe_allow_html=True)
     _,col,_=st.columns([1,8,1])
     with col:
         components.html(f"""<!DOCTYPE html><html><head><meta charset="UTF-8">
