@@ -1,5 +1,5 @@
 """
-🎮 ARCADE GALAXY v5 — Insane Graphics Edition
+🎮 ARCADE GALAXY v6 — Fixed Edition
 Run: pip install streamlit && streamlit run project.py
 """
 import streamlit as st
@@ -9,9 +9,6 @@ import random, time
 st.set_page_config(page_title="🎮 Arcade Galaxy", page_icon="🎮",
                    layout="wide", initial_sidebar_state="collapsed")
 
-# ═══════════════════════════════════════════════════════
-#  SHOP DATA
-# ═══════════════════════════════════════════════════════
 SHOP = {
     "snake_life":    {"name":"+1 Extra Life",      "game":"Snake",   "price":200,"max":4,"icon":"💚","desc":"Each purchase adds 1 life"},
     "snake_wall":    {"name":"Wall Pass",           "game":"Snake",   "price":500,"max":1,"icon":"🌀","desc":"Pass through walls"},
@@ -33,11 +30,8 @@ SHOP = {
     "daily_up":      {"name":"Daily Bonus+",        "game":"Global",  "price":400,"max":5,"icon":"📅","desc":"Each purchase: +25 daily"},
 }
 
-# ═══════════════════════════════════════════════════════
-#  STATE
-# ═══════════════════════════════════════════════════════
 def init():
-    D = {"coins":150,"level":1,"xp":0,"ach":[],"owned":{},
+    D = {"coins":500,"level":1,"xp":0,"ach":[],"owned":{},
          "page":"lobby",
          "snake_hi":0,"snake_pl":0,"flappy_hi":0,"flappy_pl":0,
          "mem_hi":0,"mem_pl":0,"ttt_w":0,"ttt_l":0,"ttt_d":0,"ttt_pl":0,
@@ -83,9 +77,6 @@ def buy_item(uid):
     st.session_state["owned"]=owned
     return True,f"Bought {item['name']}!"
 
-# ═══════════════════════════════════════════════════════
-#  CSS — Insane Galaxy Theme
-# ═══════════════════════════════════════════════════════
 def inject_css():
     st.markdown("""<style>
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&family=Share+Tech+Mono&display=swap');
@@ -93,129 +84,92 @@ def inject_css():
   --bg:#04040f;--card:#080818;--card2:#0c0c20;
   --cyan:#00f5ff;--pink:#ff006e;--gold:#ffd60a;
   --green:#39ff14;--purple:#bf5fff;--orange:#ff7c00;
-  --blue:#4488ff;--dim:#5566aa;--fg:#ccd0ff;
-  --glow-c:rgba(0,245,255,.5);--glow-p:rgba(255,0,110,.5);--glow-g:rgba(255,214,10,.5);
+  --blue:#4488ff;--dim:#aabbdd;--fg:#e8ecff;
 }
 html,body,.stApp{background:var(--bg)!important;font-family:'Rajdhani',sans-serif!important;color:var(--fg)!important;}
-.stApp{
-  background-image:
-    radial-gradient(ellipse 80% 50% at 20% 20%,rgba(0,245,255,.06),transparent),
-    radial-gradient(ellipse 60% 40% at 80% 80%,rgba(191,95,255,.05),transparent),
-    radial-gradient(ellipse 40% 60% at 50% 50%,rgba(255,0,110,.03),transparent)
-  !important;
-}
+.stApp{background-image:radial-gradient(ellipse 80% 50% at 20% 20%,rgba(0,245,255,.06),transparent),radial-gradient(ellipse 60% 40% at 80% 80%,rgba(191,95,255,.05),transparent)!important;}
 .main .block-container{padding:0 16px 32px!important;max-width:100%!important;}
 section[data-testid="stSidebar"]{display:none!important;}
-h1,h2,h3{font-family:'Orbitron',sans-serif!important;color:var(--cyan)!important;}
-/* Buttons */
+h1,h2,h3{font-family:'Orbitron',sans-serif!important;color:var(--cyan)!important;font-size:22px!important;}
+p,div,span,label{color:var(--fg)!important;}
 .stButton>button{
-  background:linear-gradient(135deg,rgba(0,245,255,.08),rgba(0,245,255,.02))!important;
-  color:var(--cyan)!important;border:1px solid rgba(0,245,255,.25)!important;
+  background:linear-gradient(135deg,rgba(0,245,255,.12),rgba(0,245,255,.04))!important;
+  color:#00f5ff!important;border:1px solid rgba(0,245,255,.4)!important;
   border-radius:8px!important;font-family:'Rajdhani',sans-serif!important;
-  font-weight:700!important;font-size:14px!important;letter-spacing:.5px!important;
-  transition:all .18s cubic-bezier(.4,0,.2,1)!important;
-  text-shadow:0 0 8px rgba(0,245,255,.4)!important;
+  font-weight:700!important;font-size:15px!important;letter-spacing:.5px!important;
+  transition:all .18s!important;
 }
-.stButton>button:hover{
-  background:rgba(0,245,255,.16)!important;border-color:var(--cyan)!important;
-  box-shadow:0 0 20px rgba(0,245,255,.3),inset 0 0 20px rgba(0,245,255,.05)!important;
-  transform:translateY(-2px) scale(1.01)!important;
-}
+.stButton>button:hover{background:rgba(0,245,255,.22)!important;border-color:var(--cyan)!important;box-shadow:0 0 20px rgba(0,245,255,.3)!important;transform:translateY(-2px)!important;}
 .stButton>button:active{transform:translateY(0) scale(.99)!important;}
 .stButton>button:disabled{opacity:.25!important;transform:none!important;}
-/* Colour variants */
-.bg .stButton>button{background:linear-gradient(135deg,rgba(255,214,10,.1),rgba(255,214,10,.03))!important;color:var(--gold)!important;border-color:rgba(255,214,10,.35)!important;text-shadow:0 0 8px rgba(255,214,10,.4)!important;}
-.bg .stButton>button:hover{background:rgba(255,214,10,.18)!important;box-shadow:0 0 20px rgba(255,214,10,.35)!important;}
-.br .stButton>button{background:linear-gradient(135deg,rgba(255,0,110,.1),rgba(255,0,110,.03))!important;color:var(--pink)!important;border-color:rgba(255,0,110,.35)!important;text-shadow:0 0 8px rgba(255,0,110,.4)!important;}
-.br .stButton>button:hover{background:rgba(255,0,110,.18)!important;box-shadow:0 0 20px rgba(255,0,110,.35)!important;}
-.bG .stButton>button{background:linear-gradient(135deg,rgba(57,255,20,.08),rgba(57,255,20,.02))!important;color:var(--green)!important;border-color:rgba(57,255,20,.3)!important;text-shadow:0 0 8px rgba(57,255,20,.4)!important;}
-.bG .stButton>button:hover{background:rgba(57,255,20,.15)!important;box-shadow:0 0 20px rgba(57,255,20,.3)!important;}
-.bp .stButton>button{background:linear-gradient(135deg,rgba(191,95,255,.1),rgba(191,95,255,.03))!important;color:var(--purple)!important;border-color:rgba(191,95,255,.35)!important;}
-/* Metrics */
-[data-testid="metric-container"]{
-  background:linear-gradient(135deg,rgba(0,245,255,.04),rgba(0,0,0,.3))!important;
-  border:1px solid rgba(0,245,255,.14)!important;border-radius:10px!important;
-  padding:12px!important;backdrop-filter:blur(8px)!important;
-  box-shadow:inset 0 1px 0 rgba(0,245,255,.08)!important;
-}
-[data-testid="metric-container"] label{color:var(--dim)!important;font-size:11px!important;font-family:'Share Tech Mono',monospace!important;letter-spacing:1px!important;}
-[data-testid="metric-container"] [data-testid="stMetricValue"]{color:var(--cyan)!important;font-family:'Orbitron',sans-serif!important;font-size:22px!important;text-shadow:0 0 12px rgba(0,245,255,.5)!important;}
-/* Alerts */
-.ok{padding:12px 16px;background:linear-gradient(135deg,rgba(57,255,20,.08),rgba(57,255,20,.02));border:1px solid rgba(57,255,20,.4);border-radius:10px;color:var(--green);font-weight:700;text-align:center;box-shadow:0 0 20px rgba(57,255,20,.1);font-family:'Rajdhani',sans-serif;font-size:15px;}
-.err{padding:12px 16px;background:linear-gradient(135deg,rgba(255,0,110,.08),rgba(255,0,110,.02));border:1px solid rgba(255,0,110,.4);border-radius:10px;color:var(--pink);font-weight:700;text-align:center;box-shadow:0 0 20px rgba(255,0,110,.1);font-family:'Rajdhani',sans-serif;font-size:15px;}
-.inf{padding:12px 16px;background:linear-gradient(135deg,rgba(0,245,255,.06),rgba(0,245,255,.01));border:1px solid rgba(0,245,255,.25);border-radius:10px;color:var(--cyan);text-align:center;box-shadow:0 0 20px rgba(0,245,255,.08);font-family:'Rajdhani',sans-serif;}
-.warn{padding:12px 16px;background:linear-gradient(135deg,rgba(255,214,10,.07),rgba(255,214,10,.01));border:1px solid rgba(255,214,10,.3);border-radius:10px;color:var(--gold);text-align:center;font-family:'Rajdhani',sans-serif;}
-/* Progress */
-.stProgress>div>div>div{background:linear-gradient(90deg,var(--cyan),var(--purple),var(--pink))!important;border-radius:4px!important;box-shadow:0 0 8px rgba(0,245,255,.4)!important;}
-.stProgress>div>div{background:rgba(255,255,255,.04)!important;border-radius:4px!important;}
-/* Misc */
-hr{border:none!important;border-top:1px solid rgba(0,245,255,.08)!important;margin:20px 0!important;}
-::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:rgba(0,245,255,.2);border-radius:2px;}
+.bg .stButton>button{background:linear-gradient(135deg,rgba(255,214,10,.15),rgba(255,214,10,.05))!important;color:#ffd60a!important;border-color:rgba(255,214,10,.5)!important;}
+.bg .stButton>button:hover{background:rgba(255,214,10,.25)!important;box-shadow:0 0 20px rgba(255,214,10,.35)!important;}
+.br .stButton>button{background:linear-gradient(135deg,rgba(255,0,110,.15),rgba(255,0,110,.05))!important;color:#ff006e!important;border-color:rgba(255,0,110,.5)!important;}
+.br .stButton>button:hover{background:rgba(255,0,110,.25)!important;}
+.bG .stButton>button{background:linear-gradient(135deg,rgba(57,255,20,.12),rgba(57,255,20,.04))!important;color:#39ff14!important;border-color:rgba(57,255,20,.4)!important;}
+.bG .stButton>button:hover{background:rgba(57,255,20,.22)!important;}
+.bp .stButton>button{background:linear-gradient(135deg,rgba(191,95,255,.12),rgba(191,95,255,.04))!important;color:#bf5fff!important;border-color:rgba(191,95,255,.4)!important;}
+[data-testid="metric-container"]{background:linear-gradient(135deg,rgba(0,245,255,.06),rgba(0,0,0,.3))!important;border:1px solid rgba(0,245,255,.2)!important;border-radius:10px!important;padding:12px!important;}
+[data-testid="metric-container"] label{color:#aabbdd!important;font-size:12px!important;font-family:'Share Tech Mono',monospace!important;letter-spacing:1px!important;}
+[data-testid="metric-container"] [data-testid="stMetricValue"]{color:#00f5ff!important;font-family:'Orbitron',sans-serif!important;font-size:24px!important;text-shadow:0 0 12px rgba(0,245,255,.5)!important;}
+.ok{padding:12px 16px;background:linear-gradient(135deg,rgba(57,255,20,.1),rgba(57,255,20,.03));border:1px solid rgba(57,255,20,.5);border-radius:10px;color:#39ff14!important;font-weight:700;text-align:center;font-family:'Rajdhani',sans-serif;font-size:16px;}
+.err{padding:12px 16px;background:linear-gradient(135deg,rgba(255,0,110,.1),rgba(255,0,110,.03));border:1px solid rgba(255,0,110,.5);border-radius:10px;color:#ff006e!important;font-weight:700;text-align:center;font-family:'Rajdhani',sans-serif;font-size:16px;}
+.inf{padding:12px 16px;background:linear-gradient(135deg,rgba(0,245,255,.08),rgba(0,245,255,.02));border:1px solid rgba(0,245,255,.35);border-radius:10px;color:#00f5ff!important;text-align:center;font-family:'Rajdhani',sans-serif;font-size:15px;}
+.warn{padding:12px 16px;background:linear-gradient(135deg,rgba(255,214,10,.09),rgba(255,214,10,.02));border:1px solid rgba(255,214,10,.4);border-radius:10px;color:#ffd60a!important;text-align:center;font-family:'Rajdhani',sans-serif;font-size:15px;}
+.stProgress>div>div>div{background:linear-gradient(90deg,var(--cyan),var(--purple),var(--pink))!important;border-radius:4px!important;}
+.stProgress>div>div{background:rgba(255,255,255,.06)!important;border-radius:4px!important;}
+hr{border:none!important;border-top:1px solid rgba(0,245,255,.1)!important;margin:20px 0!important;}
 #MainMenu,footer,.stDeployButton{display:none!important;}
 header[data-testid="stHeader"]{display:none!important;}
-.stTabs [data-baseweb="tab-list"]{background:rgba(255,255,255,.02)!important;border-radius:8px!important;padding:3px!important;border:1px solid rgba(0,245,255,.1)!important;}
-.stTabs [data-baseweb="tab"]{font-family:'Rajdhani',sans-serif!important;font-weight:700!important;color:var(--dim)!important;border-radius:6px!important;}
-.stTabs [aria-selected="true"]{background:linear-gradient(135deg,rgba(0,245,255,.15),rgba(0,245,255,.05))!important;color:var(--cyan)!important;box-shadow:0 0 12px rgba(0,245,255,.2)!important;}
+.stTabs [data-baseweb="tab-list"]{background:rgba(255,255,255,.03)!important;border-radius:8px!important;padding:3px!important;border:1px solid rgba(0,245,255,.15)!important;}
+.stTabs [data-baseweb="tab"]{font-family:'Rajdhani',sans-serif!important;font-weight:700!important;font-size:14px!important;color:#aabbdd!important;border-radius:6px!important;}
+.stTabs [aria-selected="true"]{background:linear-gradient(135deg,rgba(0,245,255,.18),rgba(0,245,255,.06))!important;color:#00f5ff!important;box-shadow:0 0 12px rgba(0,245,255,.2)!important;}
 [data-testid="column"]{padding:0 4px!important;}
-/* Number input */
-.stNumberInput input{background:rgba(0,245,255,.04)!important;border:1px solid rgba(0,245,255,.2)!important;border-radius:8px!important;color:var(--fg)!important;font-family:'Share Tech Mono',monospace!important;}
-/* Text input */
-.stTextInput input{background:rgba(0,245,255,.04)!important;border:1px solid rgba(0,245,255,.2)!important;border-radius:8px!important;color:var(--fg)!important;font-family:'Orbitron',sans-serif!important;letter-spacing:3px!important;text-transform:uppercase!important;}
-/* Slider */
+.stNumberInput input{background:rgba(0,245,255,.06)!important;border:1px solid rgba(0,245,255,.3)!important;border-radius:8px!important;color:#e8ecff!important;font-family:'Share Tech Mono',monospace!important;font-size:16px!important;}
+.stTextInput input{background:rgba(0,245,255,.06)!important;border:1px solid rgba(0,245,255,.3)!important;border-radius:8px!important;color:#e8ecff!important;font-family:'Orbitron',sans-serif!important;letter-spacing:3px!important;text-transform:uppercase!important;font-size:16px!important;}
 .stSlider [data-baseweb="slider"] div[role="slider"]{background:var(--gold)!important;box-shadow:0 0 10px var(--gold)!important;}
-/* Selectbox */
-.stSelectbox select,.stSelectbox [data-baseweb="select"] div{background:rgba(0,245,255,.04)!important;border-color:rgba(0,245,255,.2)!important;color:var(--fg)!important;}
+.stSelectbox select,.stSelectbox [data-baseweb="select"] div{background:rgba(0,245,255,.06)!important;border-color:rgba(0,245,255,.3)!important;color:#e8ecff!important;font-size:15px!important;}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:rgba(0,245,255,.2);border-radius:2px;}
 </style>""", unsafe_allow_html=True)
 
-# ═══════════════════════════════════════════════════════
-#  TOP NAV BAR
-# ═══════════════════════════════════════════════════════
 def top_nav():
     lv=S("level",1); coins=S("coins",0); xpv=S("xp",0); need=lv*120
     pct=int(xpv/need*100)
-    st.markdown(f"""
-<div style="display:flex;align-items:center;justify-content:space-between;
-  padding:10px 24px;
-  background:linear-gradient(180deg,rgba(4,4,20,.95),rgba(4,4,15,.9));
-  border-bottom:1px solid rgba(0,245,255,.1);
-  backdrop-filter:blur(20px);position:sticky;top:0;z-index:999;margin-bottom:20px;
-  box-shadow:0 4px 30px rgba(0,0,0,.5)">
+    st.markdown(f"""<div style="display:flex;align-items:center;justify-content:space-between;
+  padding:10px 24px;background:linear-gradient(180deg,rgba(4,4,20,.97),rgba(4,4,15,.92));
+  border-bottom:1px solid rgba(0,245,255,.12);backdrop-filter:blur(20px);
+  position:sticky;top:0;z-index:999;margin-bottom:20px;box-shadow:0 4px 30px rgba(0,0,0,.5)">
   <div style="display:flex;align-items:center;gap:12px">
-    <div style="font-size:34px;animation:logoPulse 3s ease-in-out infinite;filter:drop-shadow(0 0 14px rgba(0,245,255,.9))">🎮</div>
+    <div style="font-size:34px;filter:drop-shadow(0 0 14px rgba(0,245,255,.9))">🎮</div>
     <div>
       <div style="font-family:'Orbitron',sans-serif;font-size:20px;font-weight:900;
         background:linear-gradient(90deg,#00f5ff,#bf5fff,#ff006e);
         -webkit-background-clip:text;-webkit-text-fill-color:transparent;
         background-size:200%;animation:gradShift 4s linear infinite;letter-spacing:4px">ARCADE GALAXY</div>
-      <div style="font-size:10px;color:#5566aa;letter-spacing:3px;margin-top:-2px">ULTIMATE EDITION</div>
+      <div style="font-size:10px;color:#aabbdd;letter-spacing:3px;margin-top:-2px">ULTIMATE EDITION</div>
     </div>
   </div>
   <div style="display:flex;align-items:center;gap:10px">
-    <div style="background:linear-gradient(135deg,rgba(255,214,10,.12),rgba(255,214,10,.04));
-      border:1px solid rgba(255,214,10,.4);border-radius:10px;padding:8px 16px;
-      display:flex;align-items:center;gap:8px;box-shadow:0 0 16px rgba(255,214,10,.1)">
+    <div style="background:linear-gradient(135deg,rgba(255,214,10,.15),rgba(255,214,10,.05));
+      border:1px solid rgba(255,214,10,.5);border-radius:10px;padding:8px 16px;
+      display:flex;align-items:center;gap:8px">
       <span style="font-size:18px">💰</span>
       <span style="font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;color:#ffd60a;
         text-shadow:0 0 12px rgba(255,214,10,.7)">{coins:,}</span>
     </div>
-    <div style="background:linear-gradient(135deg,rgba(0,245,255,.08),rgba(0,245,255,.02));
-      border:1px solid rgba(0,245,255,.2);border-radius:10px;padding:8px 14px;min-width:100px">
+    <div style="background:linear-gradient(135deg,rgba(0,245,255,.1),rgba(0,245,255,.03));
+      border:1px solid rgba(0,245,255,.25);border-radius:10px;padding:8px 14px;min-width:100px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
         <span style="font-family:'Orbitron',sans-serif;font-size:11px;color:#00f5ff;font-weight:700">LV {lv}</span>
-        <span style="font-size:9px;color:#5566aa;font-family:'Share Tech Mono',monospace">{xpv}/{need}</span>
+        <span style="font-size:9px;color:#aabbdd;font-family:'Share Tech Mono',monospace">{xpv}/{need}</span>
       </div>
-      <div style="background:rgba(255,255,255,.05);border-radius:3px;height:4px;overflow:hidden">
-        <div style="background:linear-gradient(90deg,#00f5ff,#bf5fff);width:{pct}%;height:100%;
-          border-radius:3px;box-shadow:0 0 6px rgba(0,245,255,.6);transition:width .3s ease"></div>
+      <div style="background:rgba(255,255,255,.06);border-radius:3px;height:4px;overflow:hidden">
+        <div style="background:linear-gradient(90deg,#00f5ff,#bf5fff);width:{pct}%;height:100%;border-radius:3px"></div>
       </div>
     </div>
   </div>
 </div>
-<style>
-@keyframes logoPulse{{0%,100%{{filter:drop-shadow(0 0 14px rgba(0,245,255,.9)) drop-shadow(0 0 28px rgba(0,245,255,.4))}}50%{{filter:drop-shadow(0 0 22px rgba(0,245,255,1)) drop-shadow(0 0 44px rgba(0,245,255,.6))}}}}
-@keyframes gradShift{{0%{{background-position:0%}}100%{{background-position:200%}}}}
-</style>""", unsafe_allow_html=True)
-
+<style>@keyframes gradShift{{0%{{background-position:0%}}100%{{background-position:200%}}}}</style>""", unsafe_allow_html=True)
     c1,c2,c3=st.columns([1,1,8])
     with c1:
         st.markdown('<div class="bG">', unsafe_allow_html=True)
@@ -228,9 +182,6 @@ def top_nav():
             nav("shop"); st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
-# ═══════════════════════════════════════════════════════
-#  LOBBY
-# ═══════════════════════════════════════════════════════
 GAME_CARDS = [
     ("snake","🐍","Snake","#39ff14","Control the snake, eat food!","snake_hi","1P"),
     ("flappy","🐦","Flappy Bird","#ffd60a","Fly between pipes!","flappy_hi","1P"),
@@ -241,29 +192,23 @@ GAME_CARDS = [
     ("pong","🏓","Pong (1P)","#00f5ff","Beat the AI paddle!","pong_hi","1P"),
     ("minesweeper","💣","Minesweeper","#ff006e","Find all safe cells!",None,"1P"),
     ("guess","🔢","Number Guess","#39ff14","Guess the secret number!",None,"1P"),
-    ("targets","🎯","Target Shot","#ffd60a","Hit targets before they vanish!",None,"1P"),
+    ("paintrace","🎨","Paint Race","#ffd60a","Cover the most tiles!",None,"1P"),
     ("wordgame","🔤","Word Guess","#bf5fff","Guess the 5-letter word!",None,"1P"),
     ("pong2p","🏓","Pong (2P)","#00f5ff","Two players, one keyboard",None,"2P"),
     ("ttt2p","❌","Tic-Tac-Toe 2P","#bf5fff","Two players on same screen",None,"2P"),
     ("dice2p","🎲","Dice Race 2P","#ffd60a","First to 100 wins!",None,"2P"),
-    ("ms2p","💣","Minesweeper 2P","#ff006e","Take turns uncovering cells!",None,"2P"),
+    ("sumo2p","🥊","Sumo Push 2P","#ff006e","Push your opponent off!",None,"2P"),
 ]
 
 def page_lobby():
-    # Hero
     st.markdown("""<div style="text-align:center;padding:16px 0 30px">
-<div style="font-size:64px;display:inline-block;animation:heroFloat 3s ease-in-out infinite;
-  filter:drop-shadow(0 0 20px rgba(0,245,255,.9)) drop-shadow(0 0 40px rgba(0,245,255,.4))">🎮</div>
+<div style="font-size:64px;display:inline-block;filter:drop-shadow(0 0 20px rgba(0,245,255,.9))">🎮</div>
 <h1 style="font-family:'Orbitron',sans-serif;font-size:36px;font-weight:900;margin:10px 0 6px;
   background:linear-gradient(90deg,#00f5ff,#bf5fff,#ff006e,#ffd60a,#00f5ff);background-size:400%;
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:sh 5s linear infinite;
-  text-shadow:none;letter-spacing:4px">ARCADE GALAXY</h1>
-<p style="color:#5566aa;letter-spacing:4px;font-size:12px;margin:0">15 GAMES · 2-PLAYER · UPGRADES</p>
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:sh 5s linear infinite;letter-spacing:4px">ARCADE GALAXY</h1>
+<p style="color:#aabbdd;letter-spacing:4px;font-size:13px;margin:0">15 GAMES · 2-PLAYER · UPGRADES</p>
 </div>
-<style>
-@keyframes heroFloat{0%,100%{transform:translateY(0) rotate(0deg)}33%{transform:translateY(-10px) rotate(-3deg)}66%{transform:translateY(-5px) rotate(3deg)}}
-@keyframes sh{0%{background-position:0%}100%{background-position:400%}}
-</style>""", unsafe_allow_html=True)
+<style>@keyframes sh{0%{background-position:0%}100%{background-position:400%}}</style>""", unsafe_allow_html=True)
 
     lv=S("level",1); xpv=S("xp",0); need=lv*120
     c1,c2,c3,c4=st.columns(4)
@@ -275,10 +220,9 @@ def page_lobby():
         st.metric("🎮 Games Played",total)
     st.markdown("<br>",unsafe_allow_html=True)
 
-    # 1P games
     st.markdown("""<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
 <div style="height:1px;flex:1;background:linear-gradient(90deg,transparent,rgba(0,245,255,.3))"></div>
-<span style="font-family:'Orbitron',sans-serif;font-size:12px;color:#00f5ff;letter-spacing:3px">🕹️ SINGLE PLAYER</span>
+<span style="font-family:'Orbitron',sans-serif;font-size:13px;color:#00f5ff;letter-spacing:3px">🕹️ SINGLE PLAYER</span>
 <div style="height:1px;flex:1;background:linear-gradient(90deg,rgba(0,245,255,.3),transparent)"></div>
 </div>""", unsafe_allow_html=True)
 
@@ -289,20 +233,14 @@ def page_lobby():
         hi_val=S(hi_key,0) if hi_key else ""
         with cols[i%4]:
             best_str=f"Best: {hi_val}" if hi_val else "Play to set record"
-            st.markdown(f"""<div style="
-  background:linear-gradient(145deg,{col}09,rgba(4,4,20,.95));
-  border:1px solid {col}30;border-radius:14px;text-align:center;
-  padding:18px 10px 14px;margin-bottom:6px;
-  box-shadow:0 4px 20px {col}10,inset 0 1px 0 {col}18;
-  transition:all .2s ease;position:relative;overflow:hidden">
-  <div style="position:absolute;top:0;left:0;right:0;height:2px;
-    background:linear-gradient(90deg,transparent,{col}80,transparent)"></div>
-  <div style="font-size:40px;margin-bottom:8px;filter:drop-shadow(0 0 12px {col}80)">{ico}</div>
-  <div style="font-family:'Orbitron',sans-serif;font-size:11px;font-weight:900;
-    color:{col};margin-bottom:4px;letter-spacing:1px;
-    text-shadow:0 0 10px {col}70">{name}</div>
-  <div style="color:#5566aa;font-size:11px;margin-bottom:10px;font-family:'Rajdhani',sans-serif">{desc}</div>
-  <div style="font-size:10px;color:{col}80;font-family:'Share Tech Mono',monospace">{best_str}</div>
+            st.markdown(f"""<div style="background:linear-gradient(145deg,{col}12,rgba(4,4,20,.95));
+border:1px solid {col}40;border-radius:14px;text-align:center;padding:18px 10px 14px;margin-bottom:6px;
+position:relative;overflow:hidden">
+<div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,{col}90,transparent)"></div>
+<div style="font-size:40px;margin-bottom:8px;filter:drop-shadow(0 0 12px {col}80)">{ico}</div>
+<div style="font-family:'Orbitron',sans-serif;font-size:12px;font-weight:900;color:{col};margin-bottom:4px;letter-spacing:1px">{name}</div>
+<div style="color:#aabbdd;font-size:12px;margin-bottom:10px">{desc}</div>
+<div style="font-size:10px;color:{col}aa;font-family:'Share Tech Mono',monospace">{best_str}</div>
 </div>""", unsafe_allow_html=True)
             if st.button(f"▶ Play", key=f"lobby_{key}", use_container_width=True):
                 nav(key); st.rerun()
@@ -310,7 +248,7 @@ def page_lobby():
     st.markdown("<br>",unsafe_allow_html=True)
     st.markdown("""<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
 <div style="height:1px;flex:1;background:linear-gradient(90deg,transparent,rgba(255,0,110,.3))"></div>
-<span style="font-family:'Orbitron',sans-serif;font-size:12px;color:#ff006e;letter-spacing:3px">👥 TWO PLAYERS</span>
+<span style="font-family:'Orbitron',sans-serif;font-size:13px;color:#ff006e;letter-spacing:3px">👥 TWO PLAYERS</span>
 <div style="height:1px;flex:1;background:linear-gradient(90deg,rgba(255,0,110,.3),transparent)"></div>
 </div>""", unsafe_allow_html=True)
 
@@ -319,24 +257,18 @@ def page_lobby():
     for i,g in enumerate(mp_games):
         key,ico,name,col,desc,_,__=g
         with cols2[i%4]:
-            st.markdown(f"""<div style="
-  background:linear-gradient(145deg,{col}09,rgba(4,4,20,.95));
-  border:1px solid {col}30;border-radius:14px;text-align:center;
-  padding:18px 10px 14px;margin-bottom:6px;
-  box-shadow:0 4px 20px {col}10,inset 0 1px 0 {col}18;
-  position:relative;overflow:hidden">
-  <div style="position:absolute;top:0;left:0;right:0;height:2px;
-    background:linear-gradient(90deg,transparent,{col}80,transparent)"></div>
-  <div style="font-size:40px;margin-bottom:8px;filter:drop-shadow(0 0 12px {col}80)">{ico}</div>
-  <div style="font-family:'Orbitron',sans-serif;font-size:11px;font-weight:900;color:{col};
-    margin-bottom:4px;letter-spacing:1px">{name}</div>
-  <div style="color:#5566aa;font-size:11px;margin-bottom:10px">{desc}</div>
-  <div style="font-size:10px;color:{col}80;font-family:'Share Tech Mono',monospace">👥 Local Multiplayer</div>
+            st.markdown(f"""<div style="background:linear-gradient(145deg,{col}12,rgba(4,4,20,.95));
+border:1px solid {col}40;border-radius:14px;text-align:center;padding:18px 10px 14px;margin-bottom:6px;
+position:relative;overflow:hidden">
+<div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,{col}90,transparent)"></div>
+<div style="font-size:40px;margin-bottom:8px;filter:drop-shadow(0 0 12px {col}80)">{ico}</div>
+<div style="font-family:'Orbitron',sans-serif;font-size:12px;font-weight:900;color:{col};margin-bottom:4px;letter-spacing:1px">{name}</div>
+<div style="color:#aabbdd;font-size:12px;margin-bottom:10px">{desc}</div>
+<div style="font-size:10px;color:{col}aa;font-family:'Share Tech Mono',monospace">👥 Local Multiplayer</div>
 </div>""", unsafe_allow_html=True)
             if st.button(f"▶ Play", key=f"lobby_{key}", use_container_width=True):
                 nav(key); st.rerun()
 
-    # Daily bonus
     now=int(time.time()); last=S("daily_last",0)
     if now-last>86400:
         base=50+oc("daily_up")*25
@@ -354,22 +286,20 @@ def page_lobby():
     achs=S("ach",[])
     if achs:
         st.markdown("<hr>",unsafe_allow_html=True)
-        st.markdown("<h3 style='font-size:14px;letter-spacing:2px'>🏆 ACHIEVEMENTS</h3>",unsafe_allow_html=True)
-        b="".join(f"<span style='display:inline-flex;padding:5px 12px;"
-                  f"background:linear-gradient(135deg,rgba(255,214,10,.08),rgba(255,214,10,.02));"
-                  f"border:1px solid rgba(255,214,10,.3);border-radius:16px;font-size:11px;"
-                  f"font-weight:700;color:#ffd60a;margin:2px;font-family:Rajdhani,sans-serif;"
-                  f"box-shadow:0 0 10px rgba(255,214,10,.08)'>{a}</span>" for a in achs[-15:])
+        st.markdown("<h3 style='font-size:15px;letter-spacing:2px'>🏆 ACHIEVEMENTS</h3>",unsafe_allow_html=True)
+        b="".join(f"<span style='display:inline-flex;padding:6px 14px;background:linear-gradient(135deg,rgba(255,214,10,.1),rgba(255,214,10,.03));border:1px solid rgba(255,214,10,.35);border-radius:16px;font-size:12px;font-weight:700;color:#ffd60a;margin:3px;font-family:Rajdhani,sans-serif'>{a}</span>" for a in achs[-15:])
         st.markdown(f"<div style='display:flex;flex-wrap:wrap;gap:3px'>{b}</div>",unsafe_allow_html=True)
 
 # ═══════════════════════════════════════════════════════
-#  SNAKE
+#  SNAKE — fixed (no undefined vars in JS template)
 # ═══════════════════════════════════════════════════════
 def page_snake():
     st.markdown("<h1 style='text-align:center;letter-spacing:3px'>🐍 SNAKE</h1>",unsafe_allow_html=True)
-    st.markdown("<p style='text-align:center;color:#5566aa;font-family:Share Tech Mono,monospace'>ARROW KEYS or WASD to move</p>",unsafe_allow_html=True)
-    lives=1+oc("snake_life"); wp="true" if has("snake_wall") else "false"
-    mag="true" if has("snake_magnet") else "false"; hi=S("snake_hi",0)
+    st.markdown("<p style='text-align:center;color:#aabbdd;font-family:Share Tech Mono,monospace;font-size:14px'>ARROW KEYS or WASD to move</p>",unsafe_allow_html=True)
+    lives=1+oc("snake_life")
+    wall_pass="true" if has("snake_wall") else "false"
+    magnet="true" if has("snake_magnet") else "false"
+    hi=S("snake_hi",0)
     ups=[]
     if lives>1: ups.append(f"💚 {lives} lives")
     if has("snake_wall"): ups.append("🌀 Wall pass")
@@ -378,253 +308,207 @@ def page_snake():
     st.markdown("<br>",unsafe_allow_html=True)
     _,col,_=st.columns([1,10,1])
     with col:
-        components.html(f"""<!DOCTYPE html><html><head><meta charset="UTF-8">
-<style>*{{margin:0;padding:0;box-sizing:border-box}}
-body{{background:#04040f;display:flex;flex-direction:column;align-items:center;padding:10px;user-select:none}}
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Share+Tech+Mono&display=swap');
-.hud{{display:flex;gap:10px;margin-bottom:10px;font-family:'Share Tech Mono',monospace;flex-wrap:wrap;justify-content:center}}
-.h{{background:linear-gradient(135deg,rgba(57,255,20,.08),rgba(57,255,20,.02));
-  border:1px solid rgba(57,255,20,.3);border-radius:8px;padding:5px 14px;color:#39ff14;font-size:12px;
-  box-shadow:0 0 10px rgba(57,255,20,.08)}}
-canvas{{border:2px solid rgba(57,255,20,.25);border-radius:12px;
-  box-shadow:0 0 40px rgba(57,255,20,.12),0 0 80px rgba(57,255,20,.05);display:block}}
-.ov{{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  background:linear-gradient(145deg,rgba(4,4,20,.97),rgba(8,8,28,.97));
-  border:1px solid rgba(57,255,20,.4);border-radius:16px;padding:24px 32px;
-  text-align:center;min-width:190px;backdrop-filter:blur(20px);
-  box-shadow:0 0 40px rgba(57,255,20,.15),inset 0 1px 0 rgba(57,255,20,.1)}}
-.ov h2{{color:#39ff14;font-family:'Orbitron',sans-serif;font-size:18px;
-  margin-bottom:8px;text-shadow:0 0 16px rgba(57,255,20,.7)}}
-.ov p{{color:#8899bb;font-size:12px;margin-bottom:14px;font-family:'Share Tech Mono',monospace}}
-.ov button{{background:linear-gradient(135deg,rgba(57,255,20,.2),rgba(57,255,20,.06));
-  color:#39ff14;border:1px solid rgba(57,255,20,.5);padding:9px 22px;
-  border-radius:8px;cursor:pointer;font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;
-  transition:all .18s;box-shadow:0 0 14px rgba(57,255,20,.15)}}
-.ov button:hover{{background:rgba(57,255,20,.3);box-shadow:0 0 24px rgba(57,255,20,.35)}}
-.wrap{{position:relative}}</style></head><body>
+        snake_html = """<!DOCTYPE html><html><head><meta charset="UTF-8">
+<style>*{margin:0;padding:0;box-sizing:border-box}
+body{background:#04040f;display:flex;flex-direction:column;align-items:center;padding:10px;user-select:none;font-family:'Share Tech Mono',monospace}
+.hud{display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap;justify-content:center}
+.h{background:linear-gradient(135deg,rgba(57,255,20,.1),rgba(57,255,20,.03));border:1px solid rgba(57,255,20,.4);border-radius:8px;padding:6px 16px;color:#39ff14;font-size:13px;font-weight:700}
+canvas{border:2px solid rgba(57,255,20,.3);border-radius:12px;box-shadow:0 0 40px rgba(57,255,20,.1);display:block}
+.ov{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+background:linear-gradient(145deg,rgba(4,4,20,.97),rgba(8,8,28,.97));
+border:1px solid rgba(57,255,20,.5);border-radius:16px;padding:28px 36px;
+text-align:center;min-width:200px;backdrop-filter:blur(20px)}
+.ov h2{color:#39ff14;font-family:'Orbitron',sans-serif;font-size:20px;margin-bottom:10px;text-shadow:0 0 16px rgba(57,255,20,.8)}
+.ov p{color:#aabbdd;font-size:13px;margin-bottom:16px}
+.ov button{background:linear-gradient(135deg,rgba(57,255,20,.2),rgba(57,255,20,.06));color:#39ff14;border:1px solid rgba(57,255,20,.5);padding:10px 24px;border-radius:8px;cursor:pointer;font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;transition:all .18s}
+.ov button:hover{background:rgba(57,255,20,.3);box-shadow:0 0 20px rgba(57,255,20,.3)}
+.wrap{position:relative}</style></head><body>
 <div class="hud">
   <div class="h">SCORE: <span id="sc">0</span></div>
-  <div class="h">BEST: <span id="hi">{hi}</span></div>
-  <div class="h">LIVES: <span id="lv">{lives}</span></div>
+  <div class="h">BEST: <span id="hi">HI_PLACEHOLDER</span></div>
+  <div class="h">LIVES: <span id="lv">LV_PLACEHOLDER</span></div>
   <div class="h">SPEED: <span id="sp">1</span></div>
 </div>
 <div class="wrap"><canvas id="c"></canvas>
-<div class="ov" id="ov"><h2>🐍 SNAKE</h2><p>Arrow keys or WASD</p>
+<div class="ov" id="ov"><h2>🐍 SNAKE</h2><p>Arrow keys or WASD to move</p>
 <button onclick="startGame()">▶ PLAY</button></div></div>
 <script>
 const G=22,C=20;
-const WP={wp},MAG={mag},ML={lives};
+const WP=WALLPASS_PLACEHOLDER,MAG=MAGNET_PLACEHOLDER,ML=LIVES_PLACEHOLDER;
 const cv=document.getElementById('c'),ctx=cv.getContext('2d');
 cv.width=cv.height=G*C;
-let sn,dir,nd,food,bon,score,lv2,spd,loop,run,parts,trail;
-function startGame(){{
+let sn,dir,nd,food,bon,score,lives2,spd,loop,run,parts,trail;
+function startGame(){
   document.getElementById('ov').style.display='none';
-  sn=[{{x:11,y:11}},{{x:10,y:11}},{{x:9,y:11}}];
-  dir={{x:1,y:0}};nd={{x:1,y:0}};
-  score=0;lv2=ML;spd=1;parts=[];bon=null;trail=[];run=true;
-  ['sc','lv','sp'].forEach((id,i)=>document.getElementById(id).textContent=[0,ML,1][i]);
+  sn=[{x:11,y:11},{x:10,y:11},{x:9,y:11}];
+  dir={x:1,y:0};nd={x:1,y:0};
+  score=0;lives2=ML;spd=1;parts=[];bon=null;trail=[];run=true;
+  document.getElementById('sc').textContent=0;
+  document.getElementById('lv').textContent=ML;
+  document.getElementById('sp').textContent=1;
   placeFood();if(loop)clearInterval(loop);loop=setInterval(update,155);
-}}
-document.addEventListener('keydown',e=>{{
-  const k={{ArrowUp:{{x:0,y:-1}},ArrowDown:{{x:0,y:1}},ArrowLeft:{{x:-1,y:0}},ArrowRight:{{x:1,y:0}},
-    KeyW:{{x:0,y:-1}},KeyS:{{x:0,y:1}},KeyA:{{x:-1,y:0}},KeyD:{{x:1,y:0}}}};
-  const n=k[e.code];if(n&&(n.x!=-dir.x||n.y!=-dir.y)){{nd=n;e.preventDefault();}}
-}});
-function placeFood(){{
-  let p;do p={{x:Math.floor(Math.random()*G),y:Math.floor(Math.random()*G)}};
-  while(sn.some(s=>s.x===p.x&&s.y===p.y));food=p;
-  if(score>0&&score%60===0&&!bon){{
-    let b;do b={{x:Math.floor(Math.random()*G),y:Math.floor(Math.random()*G)}};
-    while(sn.some(s=>s.x===b.x&&s.y===b.y));bon={{...b,t:120}};
-  }}
-}}
-function spark(x,y,c,n=10){{
-  for(let i=0;i<n;i++)parts.push({{
-    x:x*C+C/2,y:y*C+C/2,
-    vx:(Math.random()-.5)*5,vy:(Math.random()-.5)*5,
-    l:30,c,r:Math.random()*3+1
-  }});
-}}
-function update(){{
+}
+document.addEventListener('keydown',function(e){
+  var k={ArrowUp:{x:0,y:-1},ArrowDown:{x:0,y:1},ArrowLeft:{x:-1,y:0},ArrowRight:{x:1,y:0},
+    KeyW:{x:0,y:-1},KeyS:{x:0,y:1},KeyA:{x:-1,y:0},KeyD:{x:1,y:0}};
+  var n=k[e.code];
+  if(n&&(n.x!=-dir.x||n.y!=-dir.y)){nd=n;e.preventDefault();}
+});
+function placeFood(){
+  var p;
+  do{p={x:Math.floor(Math.random()*G),y:Math.floor(Math.random()*G)};}
+  while(sn.some(function(s){return s.x===p.x&&s.y===p.y;}));
+  food=p;
+}
+function spark(x,y,c,n){
+  n=n||10;
+  for(var i=0;i<n;i++)parts.push({x:x*C+C/2,y:y*C+C/2,vx:(Math.random()-.5)*5,vy:(Math.random()-.5)*5,l:30,c:c,r:Math.random()*3+1});
+}
+function update(){
   if(!run)return;
-  dir={{...nd}};
-  let h={{x:sn[0].x+dir.x,y:sn[0].y+dir.y}};
-  if(WP){{h.x=(h.x+G)%G;h.y=(h.y+G)%G;}}
-  else if(h.x<0||h.x>=G||h.y<0||h.y>=G){{die();return;}}
-  if(sn.slice(1).some(s=>s.x===h.x&&s.y===h.y)){{die();return;}}
-  if(MAG){{
-    let dx=food.x-h.x,dy=food.y-h.y;
-    if(Math.abs(dx)+Math.abs(dy)<=4){{
+  dir={x:nd.x,y:nd.y};
+  var h={x:sn[0].x+dir.x,y:sn[0].y+dir.y};
+  if(WP){h.x=(h.x+G)%G;h.y=(h.y+G)%G;}
+  else if(h.x<0||h.x>=G||h.y<0||h.y>=G){die();return;}
+  if(sn.slice(1).some(function(s){return s.x===h.x&&s.y===h.y;})){die();return;}
+  if(MAG){
+    var dx=food.x-h.x,dy=food.y-h.y;
+    if(Math.abs(dx)+Math.abs(dy)<=4){
       if(dx)food.x+=dx>0?-1:1;else if(dy)food.y+=dy>0?-1:1;
-    }}
-  }}
-  trail.push({{x:sn[0].x*C+C/2,y:sn[0].y*C+C/2,l:8}});
+    }
+  }
+  trail.push({x:sn[0].x*C+C/2,y:sn[0].y*C+C/2,l:8});
   if(trail.length>12)trail.shift();
-  sn.unshift(h);let grew=false;
-  if(h.x===food.x&&h.y===food.y){{
+  sn.unshift(h);
+  var grew=false;
+  if(h.x===food.x&&h.y===food.y){
     score+=10;grew=true;
     spark(food.x,food.y,'#39ff14',12);
     placeFood();
     document.getElementById('sc').textContent=score;
-    let ns=1+Math.floor(score/60);
-    if(ns>spd){{spd=ns;clearInterval(loop);loop=setInterval(update,Math.max(60,155-spd*22));document.getElementById('sp').textContent=spd;}}
-  }}
-  if(bon&&h.x===bon.x&&h.y===bon.y){{score+=50;grew=true;spark(bon.x,bon.y,'#ffd60a',16);bon=null;document.getElementById('sc').textContent=score;}}
+    var ns=1+Math.floor(score/60);
+    if(ns>spd){spd=ns;clearInterval(loop);loop=setInterval(update,Math.max(60,155-spd*22));document.getElementById('sp').textContent=spd;}
+  }
   if(!grew)sn.pop();
-  if(bon){{bon.t--;if(!bon.t)bon=null;}}
-  parts=parts.filter(p=>p.l>0);
-  parts.forEach(p=>{{p.x+=p.vx;p.y+=p.vy;p.l--;p.vy+=.08;p.vx*=.97;}});
-  trail=trail.filter(t=>t.l>0);trail.forEach(t=>t.l--);
+  parts=parts.filter(function(p){return p.l>0;});
+  parts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.l--;p.vy+=.08;p.vx*=.97;});
+  trail=trail.filter(function(t){return t.l>0;});
+  trail.forEach(function(t){t.l--;});
   draw();
-}}
-function die(){{
-  lv2--;document.getElementById('lv').textContent=lv2;
+}
+function die(){
+  lives2--;
+  document.getElementById('lv').textContent=lives2;
   spark(sn[0].x,sn[0].y,'#ff006e',20);
-  if(lv2<=0){{
+  if(lives2<=0){
     run=false;clearInterval(loop);
-    let hs=+document.getElementById('hi').textContent||0;
+    var hs=parseInt(document.getElementById('hi').textContent)||0;
     if(score>hs)document.getElementById('hi').textContent=score;
-    const ov=document.getElementById('ov');
+    var ov=document.getElementById('ov');
     ov.querySelector('h2').textContent='💀 GAME OVER';
     ov.querySelector('p').textContent='Score: '+score;
     ov.style.display='block';
-  }}else{{
-    sn=[{{x:11,y:11}},{{x:10,y:11}},{{x:9,y:11}}];
-    dir={{x:1,y:0}};nd={{x:1,y:0}};trail=[];
-  }}
-}}
-function rr(x,y,w,h,r){{
-  ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);
-  ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);
-  ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);
-  ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);
-  ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
-}}
-function draw(){{
-  // Background
+  }else{
+    sn=[{x:11,y:11},{x:10,y:11},{x:9,y:11}];
+    dir={x:1,y:0};nd={x:1,y:0};trail=[];
+  }
+}
+function rr(x,y,w,h,r){
+  ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);
+  ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
+}
+function draw(){
   ctx.fillStyle='#04040f';ctx.fillRect(0,0,G*C,G*C);
-  // Grid
   ctx.strokeStyle='rgba(57,255,20,.04)';ctx.lineWidth=.5;
-  for(let i=0;i<=G;i++){{
+  for(var i=0;i<=G;i++){
     ctx.beginPath();ctx.moveTo(i*C,0);ctx.lineTo(i*C,G*C);ctx.stroke();
     ctx.beginPath();ctx.moveTo(0,i*C);ctx.lineTo(G*C,i*C);ctx.stroke();
-  }}
-  // Trail
-  trail.forEach((t,i)=>{{
+  }
+  ctx.globalAlpha=1;
+  trail.forEach(function(t){
     ctx.globalAlpha=t.l/8*.3;ctx.fillStyle='#39ff14';
     ctx.beginPath();ctx.arc(t.x,t.y,2,0,Math.PI*2);ctx.fill();
-  }});ctx.globalAlpha=1;
-  // Particles
-  parts.forEach(p=>{{
-    ctx.globalAlpha=p.l/30;ctx.fillStyle=p.c;
-    ctx.shadowBlur=6;ctx.shadowColor=p.c;
-    ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();
-    ctx.shadowBlur=0;
-  }});ctx.globalAlpha=1;
-  // Food
-  let t=Date.now()/300;
+  });ctx.globalAlpha=1;
+  parts.forEach(function(p){
+    ctx.globalAlpha=p.l/30;ctx.fillStyle=p.c;ctx.shadowBlur=6;ctx.shadowColor=p.c;
+    ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+  });ctx.globalAlpha=1;
+  var t2=Date.now()/300;
   ctx.save();ctx.translate(food.x*C+C/2,food.y*C+C/2);
-  ctx.scale(1+Math.sin(t)*.18,1+Math.sin(t)*.18);
-  ctx.shadowBlur=20;ctx.shadowColor='#39ff14';
-  ctx.fillStyle='#39ff14';ctx.beginPath();ctx.arc(0,0,C/2-2,0,Math.PI*2);ctx.fill();
+  ctx.scale(1+Math.sin(t2)*.18,1+Math.sin(t2)*.18);
+  ctx.shadowBlur=20;ctx.shadowColor='#39ff14';ctx.fillStyle='#39ff14';
+  ctx.beginPath();ctx.arc(0,0,C/2-2,0,Math.PI*2);ctx.fill();
   ctx.fillStyle='rgba(255,255,255,.35)';ctx.beginPath();ctx.arc(-2,-2,C/5,0,Math.PI*2);ctx.fill();
   ctx.shadowBlur=0;ctx.restore();
-  // Bonus star
-  if(bon){{
-    ctx.save();ctx.translate(bon.x*C+C/2,bon.y*C+C/2);
-    ctx.rotate(Date.now()/400);ctx.scale(1+Math.sin(Date.now()/130)*.18,1+Math.sin(Date.now()/130)*.18);
-    ctx.shadowBlur=24;ctx.shadowColor='#ffd60a';ctx.fillStyle='#ffd60a';
-    ctx.font=(C-1)+'px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('★',0,0);
-    ctx.shadowBlur=0;ctx.restore();
-    ctx.fillStyle='rgba(255,214,10,'+bon.t/120+')';ctx.fillRect(bon.x*C,bon.y*C-3,C*(bon.t/120),2);
-  }}
-  // Snake
-  sn.forEach((seg,i)=>{{
+  sn.forEach(function(seg,i){
     ctx.save();
-    const ratio=i/sn.length;
-    const baseG=215-ratio*90;
-    if(i===0){{
-      ctx.shadowBlur=16;ctx.shadowColor='rgba(57,255,20,.9)';
-      ctx.fillStyle='#fff';
-    }}else{{
-      ctx.fillStyle=`rgba(0,${{Math.round(baseG)}},255,.9)`;
-    }}
-    let pd=i===0?1:2,rd=i===0?5:3;
+    var ratio=i/sn.length;
+    var baseG=215-ratio*90;
+    if(i===0){ctx.shadowBlur=16;ctx.shadowColor='rgba(57,255,20,.9)';ctx.fillStyle='#fff';}
+    else{ctx.fillStyle='rgba(0,'+Math.round(baseG)+',255,.9)';}
+    var pd=i===0?1:2,rd=i===0?5:3;
     rr(seg.x*C+pd,seg.y*C+pd,C-pd*2,C-pd*2,rd);ctx.fill();
-    if(i===0){{
-      // Eyes
+    if(i===0){
       ctx.shadowBlur=0;ctx.fillStyle='#04040f';
       ctx.beginPath();ctx.arc(seg.x*C+C*.3+dir.y*C*.2,seg.y*C+C*.3-dir.x*C*.2,2.2,0,Math.PI*2);ctx.fill();
       ctx.beginPath();ctx.arc(seg.x*C+C*.7-dir.y*C*.2,seg.y*C+C*.3-dir.x*C*.2,2.2,0,Math.PI*2);ctx.fill();
-      // Pupils glow
-      ctx.fillStyle='rgba(57,255,20,.6)';
-      ctx.beginPath();ctx.arc(seg.x*C+C*.3+dir.y*C*.2,seg.y*C+C*.3-dir.x*C*.2,1,0,Math.PI*2);ctx.fill();
-      ctx.beginPath();ctx.arc(seg.x*C+C*.7-dir.y*C*.2,seg.y*C+C*.3-dir.x*C*.2,1,0,Math.PI*2);ctx.fill();
-    }}
+    }
     ctx.restore();
-  }});
-}}
+  });
+}
 ctx.fillStyle='#04040f';ctx.fillRect(0,0,G*C,G*C);
-</script></body></html>""", height=G*C+100, scrolling=False)
+</script></body></html>"""
+        snake_html = snake_html.replace("HI_PLACEHOLDER", str(hi))
+        snake_html = snake_html.replace("LV_PLACEHOLDER", str(lives))
+        snake_html = snake_html.replace("WALLPASS_PLACEHOLDER", wall_pass)
+        snake_html = snake_html.replace("MAGNET_PLACEHOLDER", magnet)
+        snake_html = snake_html.replace("LIVES_PLACEHOLDER", str(lives))
+        components.html(snake_html, height=G*C+100, scrolling=False)
 
-    st.markdown("<br>",unsafe_allow_html=True)
-    _,c2,_=st.columns([1,2,1])
-    with c2:
-        st.markdown('<div class="bG">',unsafe_allow_html=True)
-        if st.button("▶ New Game", use_container_width=True, key="sn_new"):
-            st.session_state["snake_pl"]=S("snake_pl",0)+1; earn(5); give_xp(5)
-            st.toast("🐍 Good luck!")
-        st.markdown('</div>',unsafe_allow_html=True)
-    st.markdown("---",unsafe_allow_html=True)
+    st.markdown("---")
     c1,c2=st.columns(2)
     with c1: st.metric("🏆 Best",S("snake_hi",0))
     with c2: st.metric("🎮 Games",S("snake_pl",0))
 
 # ═══════════════════════════════════════════════════════
-#  FLAPPY
+#  FLAPPY — no new game button at bottom
 # ═══════════════════════════════════════════════════════
 def page_flappy():
     st.markdown("<h1 style='text-align:center;letter-spacing:3px'>🐦 FLAPPY BIRD</h1>",unsafe_allow_html=True)
-    st.markdown("<p style='text-align:center;color:#5566aa;font-family:Share Tech Mono,monospace'>SPACE or CLICK to flap</p>",unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center;color:#aabbdd;font-family:Share Tech Mono,monospace;font-size:14px'>SPACE or CLICK to flap</p>",unsafe_allow_html=True)
     sh=oc("flappy_shield"); gap=110+oc("flappy_gap")*15
     slow_ps=1.7 if has("flappy_slow") else 2.5
     hi=S("flappy_hi",0)
     if sh or has("flappy_slow") or has("flappy_gap"):
         gap_count=oc("flappy_gap")
-        parts=filter(None,[
+        parts2=list(filter(None,[
             f'🛡 {sh} shields' if sh else '',
             '🐌 Slow pipes' if has("flappy_slow") else '',
             f'🔓 Gap +{gap_count*15}' if has("flappy_gap") else '',
-        ])
-        st.markdown(f"<div class='inf'>{'  |  '.join(parts)}</div>",unsafe_allow_html=True)
+        ]))
+        st.markdown(f"<div class='inf'>{'  |  '.join(parts2)}</div>",unsafe_allow_html=True)
     st.markdown("<br>",unsafe_allow_html=True)
     _,col,_=st.columns([1,8,1])
     with col:
-        components.html(f"""<!DOCTYPE html><html><head><meta charset="UTF-8">
-<style>*{{margin:0;padding:0;box-sizing:border-box}}
-body{{background:#04040f;display:flex;flex-direction:column;align-items:center;padding:10px;user-select:none}}
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Share+Tech+Mono&display=swap');
-.hud{{display:flex;gap:10px;margin-bottom:10px;font-family:'Share Tech Mono',monospace}}
-.h{{background:linear-gradient(135deg,rgba(255,214,10,.08),rgba(255,214,10,.02));
-  border:1px solid rgba(255,214,10,.3);border-radius:8px;padding:5px 14px;color:#ffd60a;font-size:12px}}
-canvas{{border:2px solid rgba(255,214,10,.3);border-radius:12px;
-  box-shadow:0 0 40px rgba(255,214,10,.1),0 0 80px rgba(255,214,10,.04);cursor:pointer;display:block}}
-.ov{{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  background:linear-gradient(145deg,rgba(4,4,20,.97),rgba(8,8,28,.97));
-  border:1px solid rgba(255,214,10,.4);border-radius:16px;padding:24px 32px;
-  text-align:center;min-width:190px;backdrop-filter:blur(20px);
-  box-shadow:0 0 40px rgba(255,214,10,.15),inset 0 1px 0 rgba(255,214,10,.1)}}
-.ov h2{{color:#ffd60a;font-family:'Orbitron',sans-serif;font-size:18px;margin-bottom:8px;text-shadow:0 0 16px rgba(255,214,10,.7)}}
-.ov p{{color:#8899bb;font-size:12px;margin-bottom:14px;font-family:'Share Tech Mono',monospace}}
-.ov button{{background:linear-gradient(135deg,rgba(255,214,10,.2),rgba(255,214,10,.06));
-  color:#ffd60a;border:1px solid rgba(255,214,10,.5);padding:9px 22px;
-  border-radius:8px;cursor:pointer;font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;transition:all .18s}}
-.ov button:hover{{background:rgba(255,214,10,.3)}}
-.wrap{{position:relative}}</style></head><body>
+        flappy_html = """<!DOCTYPE html><html><head><meta charset="UTF-8">
+<style>*{margin:0;padding:0;box-sizing:border-box}
+body{background:#04040f;display:flex;flex-direction:column;align-items:center;padding:10px;user-select:none;font-family:'Share Tech Mono',monospace}
+.hud{display:flex;gap:10px;margin-bottom:10px}
+.h{background:linear-gradient(135deg,rgba(255,214,10,.1),rgba(255,214,10,.03));border:1px solid rgba(255,214,10,.4);border-radius:8px;padding:6px 16px;color:#ffd60a;font-size:13px;font-weight:700}
+canvas{border:2px solid rgba(255,214,10,.35);border-radius:12px;box-shadow:0 0 40px rgba(255,214,10,.1);cursor:pointer;display:block}
+.ov{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+background:linear-gradient(145deg,rgba(4,4,20,.97),rgba(8,8,28,.97));
+border:1px solid rgba(255,214,10,.5);border-radius:16px;padding:28px 36px;text-align:center;min-width:200px;backdrop-filter:blur(20px)}
+.ov h2{color:#ffd60a;font-family:'Orbitron',sans-serif;font-size:20px;margin-bottom:10px;text-shadow:0 0 16px rgba(255,214,10,.8)}
+.ov p{color:#aabbdd;font-size:13px;margin-bottom:16px}
+.ov button{background:linear-gradient(135deg,rgba(255,214,10,.2),rgba(255,214,10,.06));color:#ffd60a;border:1px solid rgba(255,214,10,.5);padding:10px 24px;border-radius:8px;cursor:pointer;font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;transition:all .18s}
+.ov button:hover{background:rgba(255,214,10,.3)}
+.wrap{position:relative}</style></head><body>
 <div class="hud">
   <div class="h">SCORE: <span id="sc">0</span></div>
-  <div class="h">BEST: <span id="hi">{hi}</span></div>
-  <div class="h">🛡 <span id="sh">{sh}</span></div>
+  <div class="h">BEST: <span id="hi">HI_PH</span></div>
+  <div class="h">🛡 <span id="sh">SH_PH</span></div>
 </div>
 <div class="wrap"><canvas id="c" width="340" height="460"></canvas>
 <div class="ov" id="ov">
@@ -633,157 +517,99 @@ canvas{{border:2px solid rgba(255,214,10,.3);border-radius:12px;
   <button onclick="startGame()">▶ PLAY</button>
 </div></div>
 <script>
-const W=340,H=460,BR=13,PS={slow_ps},GAP={gap},ISH={sh};
-const cv=document.getElementById('c'),ctx=cv.getContext('2d');
-let bird,pipes,score,frame,run,raf,shL,parts,stars,clouds;
-function mkBg(){{
-  stars=[];for(let i=0;i<70;i++)stars.push({{x:Math.random()*W,y:Math.random()*H*.72,r:Math.random()*1.5+.3,s:Math.random()*.2+.06,b:Math.random()}});
-  clouds=[];for(let i=0;i<5;i++)clouds.push({{x:Math.random()*W,y:20+Math.random()*80,w:40+Math.random()*60,s:Math.random()*.3+.1}});
-}}
-function startGame(){{
+var W=340,H=460,BR=13,PS=SLOWPS_PH,GAP=GAP_PH,ISH=SH_PH2;
+var cv=document.getElementById('c'),ctx=cv.getContext('2d');
+var bird,pipes,score,frame,run,raf,shL,parts3,stars,clouds;
+function mkBg(){
+  stars=[];for(var i=0;i<70;i++)stars.push({x:Math.random()*W,y:Math.random()*H*.72,r:Math.random()*1.5+.3,s:Math.random()*.2+.06,b:Math.random()});
+  clouds=[];for(var i=0;i<5;i++)clouds.push({x:Math.random()*W,y:20+Math.random()*80,w:40+Math.random()*60,s:Math.random()*.3+.1});
+}
+function startGame(){
   document.getElementById('ov').style.display='none';
-  bird={{x:75,y:H/2,vy:0,rot:0}};pipes=[];score=0;frame=0;run=true;shL=ISH;parts=[];
+  bird={x:75,y:H/2,vy:0,rot:0};pipes=[];score=0;frame=0;run=true;shL=ISH;parts3=[];
   document.getElementById('sc').textContent='0';
   document.getElementById('sh').textContent=shL;
   if(raf)cancelAnimationFrame(raf);mkBg();loop();
-}}
-function flap(){{if(run){{bird.vy=-7.2;parts.push(...Array.from({{length:4}},()=>({{'type':'flap',x:bird.x-BR,y:bird.y,vx:-Math.random()*2-1,vy:(Math.random()-.5)*2,l:15}})))}}}}
+}
+function flap(){if(run){bird.vy=-7.2;}}
 cv.addEventListener('click',flap);
-document.addEventListener('keydown',e=>{{if(e.code==='Space'){{flap();e.preventDefault();}}}});
-function loop(){{if(!run)return;update();draw();raf=requestAnimationFrame(loop);}}
-function update(){{
+document.addEventListener('keydown',function(e){if(e.code==='Space'){flap();e.preventDefault();}});
+function loop(){if(!run)return;update();draw();raf=requestAnimationFrame(loop);}
+function update(){
   frame++;bird.vy+=.35;bird.y+=bird.vy;bird.rot=Math.min(Math.max(bird.vy*3.5,-35),90);
-  parts=parts.filter(p=>p.l>0);
-  parts.forEach(p=>{{p.x+=p.vx;p.y+=p.vy;p.l--;if(p.type!=='flap')p.vy+=.1;}});
-  stars.forEach(s=>{{s.x-=s.s;if(s.x<0){{s.x=W;s.y=Math.random()*H*.72;}}}});
-  clouds.forEach(c=>{{c.x-=c.s;if(c.x+c.w<0)c.x=W+c.w;}});
-  if(frame%85===0)pipes.push({{x:W,th:55+Math.random()*(H-GAP-105),ok:false}});
-  pipes.forEach(p=>p.x-=PS);
-  pipes=pipes.filter(p=>p.x>-55);
-  pipes.forEach(p=>{{
-    if(!p.ok&&p.x+45<bird.x){{
+  parts3=parts3.filter(function(p){return p.l>0;});
+  parts3.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.l--;});
+  stars.forEach(function(s){s.x-=s.s;if(s.x<0){s.x=W;s.y=Math.random()*H*.72;}});
+  clouds.forEach(function(c){c.x-=c.s;if(c.x+c.w<0)c.x=W+c.w;});
+  if(frame%85===0)pipes.push({x:W,th:55+Math.random()*(H-GAP-105),ok:false});
+  pipes.forEach(function(p){p.x-=PS;});
+  pipes=pipes.filter(function(p){return p.x>-55;});
+  pipes.forEach(function(p){
+    if(!p.ok&&p.x+45<bird.x){
       p.ok=true;score++;document.getElementById('sc').textContent=score;
-      for(let i=0;i<8;i++)parts.push({{type:'score',x:bird.x,y:bird.y,vx:(Math.random()-.5)*5,vy:-Math.random()*4,l:28,c:'#ffd60a'}});
-    }}
-    if(bird.x+BR>p.x&&bird.x-BR<p.x+46&&(bird.y-BR<p.th||bird.y+BR>p.th+GAP)){{
-      if(shL>0){{
-        shL--;document.getElementById('sh').textContent=shL;
-        for(let i=0;i<16;i++)parts.push({{type:'shield',x:bird.x,y:bird.y,vx:(Math.random()-.5)*7,vy:(Math.random()-.5)*7,l:30,c:'#00f5ff'}});
-      }}else die();
-    }}
-  }});
+    }
+    if(bird.x+BR>p.x&&bird.x-BR<p.x+46&&(bird.y-BR<p.th||bird.y+BR>p.th+GAP)){
+      if(shL>0){shL--;document.getElementById('sh').textContent=shL;}
+      else die();
+    }
+  });
   if(bird.y+BR>H-28||bird.y-BR<0)die();
-}}
-function die(){{
+}
+function die(){
   run=false;cancelAnimationFrame(raf);
-  let hs=+document.getElementById('hi').textContent||0;
+  var hs=parseInt(document.getElementById('hi').textContent)||0;
   if(score>hs)document.getElementById('hi').textContent=score;
   document.getElementById('ot').textContent='💥 CRASHED!';
   document.getElementById('ov').querySelector('p').textContent='Score: '+score;
   document.getElementById('ov').style.display='block';
-}}
-function drawPipe(x,th){{
-  // Pipe body gradient
-  let g=ctx.createLinearGradient(x,0,x+46,0);
-  g.addColorStop(0,'#0d3d12');g.addColorStop(.4,'#1a6b20');g.addColorStop(.6,'#1a6b20');g.addColorStop(1,'#0d3d12');
-  ctx.fillStyle=g;
-  ctx.fillRect(x,0,46,th);
-  ctx.fillRect(x,th+GAP,46,H-(th+GAP));
-  // Cap
-  let cg=ctx.createLinearGradient(x-5,0,x+51,0);
-  cg.addColorStop(0,'#0d3d12');cg.addColorStop(.4,'#28a030');cg.addColorStop(.6,'#28a030');cg.addColorStop(1,'#0d3d12');
-  ctx.fillStyle=cg;
-  ctx.fillRect(x-5,th-18,56,18);
-  ctx.fillRect(x-5,th+GAP,56,18);
-  // Highlight
-  ctx.fillStyle='rgba(57,255,20,.12)';ctx.fillRect(x+3,0,6,th);ctx.fillRect(x+3,th+GAP,6,H-(th+GAP));
-  // Edge glow
-  ctx.shadowBlur=8;ctx.shadowColor='rgba(57,255,20,.2)';
-  ctx.strokeStyle='rgba(57,255,20,.15)';ctx.lineWidth=1;
-  ctx.strokeRect(x,0,46,th);ctx.strokeRect(x,th+GAP,46,H-(th+GAP));
-  ctx.shadowBlur=0;
-}}
-function draw(){{
-  // Sky gradient
-  let sky=ctx.createLinearGradient(0,0,0,H);
-  sky.addColorStop(0,'#02020a');sky.addColorStop(.65,'#060616');sky.addColorStop(1,'#080f08');
-  ctx.fillStyle=sky;ctx.fillRect(0,0,W,H);
-  // Stars
-  stars.forEach(s=>{{
-    ctx.globalAlpha=.3+Math.sin(frame*.04+s.b*6)*.35;
-    ctx.fillStyle='#fff';ctx.shadowBlur=4;ctx.shadowColor='#fff';
+}
+function drawPipe(x,th){
+  var g=ctx.createLinearGradient(x,0,x+46,0);
+  g.addColorStop(0,'#0d3d12');g.addColorStop(.4,'#1a6b20');g.addColorStop(1,'#0d3d12');
+  ctx.fillStyle=g;ctx.fillRect(x,0,46,th);ctx.fillRect(x,th+GAP,46,H-(th+GAP));
+  ctx.fillStyle='#1e8026';ctx.fillRect(x-5,th-18,56,18);ctx.fillRect(x-5,th+GAP,56,18);
+}
+function draw(){
+  ctx.fillStyle='#02020a';ctx.fillRect(0,0,W,H);
+  stars.forEach(function(s){
+    ctx.globalAlpha=.3+Math.sin(frame*.04+s.b*6)*.3;ctx.fillStyle='#fff';
     ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();
-    ctx.shadowBlur=0;
-  }});ctx.globalAlpha=1;
-  // Clouds
-  clouds.forEach(c=>{{
-    ctx.globalAlpha=.06;ctx.fillStyle='#8899ff';
-    ctx.beginPath();ctx.ellipse(c.x,c.y,c.w/2,12,0,0,Math.PI*2);ctx.fill();
-    ctx.beginPath();ctx.ellipse(c.x-c.w*.2,c.y+5,c.w/3,9,0,0,Math.PI*2);ctx.fill();
-    ctx.beginPath();ctx.ellipse(c.x+c.w*.2,c.y+4,c.w/3,8,0,0,Math.PI*2);ctx.fill();
-  }});ctx.globalAlpha=1;
-  // Pipes
-  pipes.forEach(p=>drawPipe(p.x,p.th));
-  // Ground
-  let gg=ctx.createLinearGradient(0,H-28,0,H);
-  gg.addColorStop(0,'#101a10');gg.addColorStop(1,'#060f06');
-  ctx.fillStyle=gg;ctx.fillRect(0,H-28,W,28);
-  ctx.fillStyle='rgba(57,255,20,.15)';ctx.fillRect(0,H-28,W,2);
-  // Particles
-  parts.forEach(p=>{{
-    ctx.globalAlpha=p.l/(p.type==='score'?28:p.type==='shield'?30:15);
-    ctx.fillStyle=p.c||'#fff';ctx.shadowBlur=5;ctx.shadowColor=p.c||'#fff';
-    ctx.beginPath();ctx.arc(p.x,p.y,p.type==='flap'?3:2.5,0,Math.PI*2);ctx.fill();
-    ctx.shadowBlur=0;
-  }});ctx.globalAlpha=1;
-  // Bird
+  });ctx.globalAlpha=1;
+  pipes.forEach(function(p){drawPipe(p.x,p.th);});
+  ctx.fillStyle='#101a10';ctx.fillRect(0,H-28,W,28);
+  ctx.fillStyle='rgba(57,255,20,.2)';ctx.fillRect(0,H-28,W,2);
   ctx.save();ctx.translate(bird.x,bird.y);ctx.rotate(bird.rot*Math.PI/180);
-  // Shield
-  if(shL>0){{
+  if(shL>0){
     ctx.beginPath();ctx.arc(0,0,BR+9,0,Math.PI*2);
-    let sg=ctx.createRadialGradient(0,0,BR,0,0,BR+9);
-    sg.addColorStop(0,'rgba(0,245,255,.0)');sg.addColorStop(.7,'rgba(0,245,255,.25)');sg.addColorStop(1,'rgba(0,245,255,.0)');
-    ctx.fillStyle=sg;ctx.fill();
-    ctx.strokeStyle='rgba(0,245,255,'+(0.4+Math.sin(frame*.18)*.3)+')';ctx.lineWidth=1.5;ctx.stroke();
-  }}
-  // Body glow
+    ctx.strokeStyle='rgba(0,245,255,.7)';ctx.lineWidth=2;ctx.stroke();
+  }
   ctx.shadowBlur=14;ctx.shadowColor='rgba(255,214,10,.8)';
-  // Body gradient
-  let bg2=ctx.createRadialGradient(-2,-2,1,0,0,BR);
+  var bg2=ctx.createRadialGradient(-2,-2,1,0,0,BR);
   bg2.addColorStop(0,'#fff9c4');bg2.addColorStop(.5,'#ffd60a');bg2.addColorStop(1,'#ff8f00');
   ctx.fillStyle=bg2;ctx.beginPath();ctx.ellipse(0,0,BR,BR-1,0,0,Math.PI*2);ctx.fill();
   ctx.shadowBlur=0;
-  // Wing
-  ctx.fillStyle='rgba(255,140,0,.8)';
-  ctx.beginPath();ctx.ellipse(-3,3,8,4,Math.PI/4+Math.sin(frame*.3)*.5,0,Math.PI*2);ctx.fill();
-  // Eye
   ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(5.5,-2,3.5,0,Math.PI*2);ctx.fill();
   ctx.fillStyle='#1a0a00';ctx.beginPath();ctx.arc(6.5,-2,2,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='rgba(255,255,255,.7)';ctx.beginPath();ctx.arc(7,-2.8,0.7,0,Math.PI*2);ctx.fill();
-  // Beak
   ctx.fillStyle='#ff6600';ctx.beginPath();ctx.moveTo(BR+1,0);ctx.lineTo(BR+7,1.5);ctx.lineTo(BR+1,-2);ctx.fill();
   ctx.restore();
-  // Score
   ctx.fillStyle='rgba(255,214,10,.95)';ctx.font='bold 28px Orbitron,monospace';ctx.textAlign='center';
   ctx.shadowBlur=16;ctx.shadowColor='rgba(255,214,10,.8)';ctx.fillText(score,W/2,50);ctx.shadowBlur=0;
-}}
+}
 mkBg();ctx.fillStyle='#04040f';ctx.fillRect(0,0,W,H);
-</script></body></html>""", height=520, scrolling=False)
+</script></body></html>"""
+        flappy_html = flappy_html.replace("HI_PH", str(hi))
+        flappy_html = flappy_html.replace("SH_PH", str(sh)).replace("SH_PH2", str(sh))
+        flappy_html = flappy_html.replace("SLOWPS_PH", str(slow_ps))
+        flappy_html = flappy_html.replace("GAP_PH", str(gap))
+        components.html(flappy_html, height=520, scrolling=False)
 
-    st.markdown("<br>",unsafe_allow_html=True)
-    _,c2,_=st.columns([1,2,1])
-    with c2:
-        st.markdown('<div class="bg">',unsafe_allow_html=True)
-        if st.button("▶ New Game", use_container_width=True, key="fl_new"):
-            st.session_state["flappy_pl"]=S("flappy_pl",0)+1; earn(5); give_xp(5)
-        st.markdown('</div>',unsafe_allow_html=True)
     st.markdown("---")
     c1,c2=st.columns(2)
     with c1: st.metric("🏆 Best",S("flappy_hi",0))
     with c2: st.metric("🎮 Games",S("flappy_pl",0))
 
 # ═══════════════════════════════════════════════════════
-#  MEMORY — Full canvas-based with proper flip animation
+#  MEMORY — canvas only, no button grid below
 # ═══════════════════════════════════════════════════════
 EMJ=["🐉","🦄","🔥","⚡","💎","🚀","🌊","🎸","🦋","🍄","🎯","🏆","🌈","🎪","🐬","🦁"]
 
@@ -797,7 +623,7 @@ def _mr():
 
 def page_memory():
     st.markdown("<h1 style='text-align:center;letter-spacing:3px'>🧠 MEMORY</h1>",unsafe_allow_html=True)
-    st.markdown("<p style='text-align:center;color:#5566aa;font-family:Share Tech Mono,monospace'>CLICK TILES to flip them — find all pairs!</p>",unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center;color:#aabbdd;font-family:Share Tech Mono,monospace;font-size:14px'>Click tiles to flip — find all pairs!</p>",unsafe_allow_html=True)
     if has("mem_x2"): st.markdown("<div class='inf'>×2 score active!</div>",unsafe_allow_html=True)
     if "mb" not in st.session_state: _mr()
 
@@ -826,7 +652,6 @@ def page_memory():
             st.markdown('</div>',unsafe_allow_html=True)
         return
 
-    # Handle pending match check
     if S("mpend") and time.time()-S("mptime",0)>=1.0:
         f2=list(S("mf",[]))
         if len(f2)==2:
@@ -838,184 +663,55 @@ def page_memory():
 
     can_flip = len(fl)<2 and not S("mpend")
 
-    # Build full-game HTML with click-to-flip 3D animation
-    # Pass state into JS so it renders correctly
     mm_list = list(mm)
     fl_list = list(fl)
-
-    emj_js = "[" + ",".join(f'"{EMJ[b[i]]}"' for i in range(16)) + "]"
+    emj_js = "[" + ",".join('"' + EMJ[b[i]] + '"' for i in range(16)) + "]"
     mm_js = "[" + ",".join(str(x) for x in mm_list) + "]"
     fl_js = "[" + ",".join(str(x) for x in fl_list) + "]"
     can_js = "true" if can_flip else "false"
 
-    components.html(f"""<!DOCTYPE html><html><head><meta charset="UTF-8">
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap');
-*{{margin:0;padding:0;box-sizing:border-box}}
-body{{background:transparent;padding:10px;font-family:sans-serif;display:flex;justify-content:center}}
-.grid{{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:100%;max-width:440px}}
-.card{{position:relative;width:100%;aspect-ratio:1;cursor:pointer;perspective:800px;
-  transition:transform .08s;}}
-.card:hover .inner:not(.flipped):not(.matched){{transform:rotateY(8deg) scale(1.04);}}
-.inner{{
-  position:absolute;inset:0;transform-style:preserve-3d;
-  transition:transform .55s cubic-bezier(.4,0,.2,1);border-radius:12px;
-}}
-.inner.flipped,.inner.matched{{transform:rotateY(180deg)}}
-.front,.back{{
-  position:absolute;inset:0;border-radius:12px;
-  display:flex;align-items:center;justify-content:center;
-  backface-visibility:hidden;-webkit-backface-visibility:hidden;
-  font-size:36px;
-}}
-/* Back = unflipped face shown to user */
-.back{{
-  background:linear-gradient(145deg,#0e0e28,#080820);
-  border:1px solid rgba(191,95,255,.3);
-  box-shadow:0 4px 16px rgba(0,0,0,.4),inset 0 1px 0 rgba(191,95,255,.12);
-}}
-.back::before{{
-  content:'?';font-family:'Orbitron',sans-serif;font-size:22px;font-weight:900;
-  color:rgba(191,95,255,.6);text-shadow:0 0 12px rgba(191,95,255,.5);
-}}
-/* Front = emoji face (rotated 180 so it shows when flipped) */
-.front{{
-  transform:rotateY(180deg);
-  background:linear-gradient(145deg,#0d0d22,#0a0a1e);
-  border:1px solid rgba(0,245,255,.4);
-  box-shadow:0 4px 20px rgba(0,245,255,.15),inset 0 1px 0 rgba(0,245,255,.15);
-}}
-.front .emoji{{font-size:38px;filter:drop-shadow(0 0 8px rgba(0,245,255,.6));}}
-/* Matched state */
-.inner.matched .front{{
-  background:linear-gradient(145deg,rgba(57,255,20,.12),rgba(57,255,20,.04));
-  border:1px solid rgba(57,255,20,.55);
-  box-shadow:0 0 24px rgba(57,255,20,.2),inset 0 1px 0 rgba(57,255,20,.18);
-  animation:matchPop .5s cubic-bezier(.34,1.56,.64,1) forwards;
-}}
-.inner.matched .front .emoji{{filter:drop-shadow(0 0 12px rgba(57,255,20,.8));animation:matchGlow 1.5s ease-in-out infinite;}}
-/* No-click state */
-.card.disabled{{cursor:default;pointer-events:none;}}
-@keyframes matchPop{{
-  0%{{transform:rotateY(180deg) scale(.9)}}
-  60%{{transform:rotateY(180deg) scale(1.1)}}
-  100%{{transform:rotateY(180deg) scale(1)}}
-}}
-@keyframes matchGlow{{
-  0%,100%{{filter:drop-shadow(0 0 8px rgba(57,255,20,.6))}}
-  50%{{filter:drop-shadow(0 0 18px rgba(57,255,20,1))}}
-}}
-/* Wrong pair shake */
-@keyframes wrongShake{{
-  0%,100%{{transform:rotateY(180deg)}}
-  20%{{transform:rotateY(180deg) translateX(-6px) rotate(-2deg)}}
-  40%{{transform:rotateY(180deg) translateX(6px) rotate(2deg)}}
-  60%{{transform:rotateY(180deg) translateX(-4px) rotate(-1deg)}}
-  80%{{transform:rotateY(180deg) translateX(4px) rotate(1deg)}}
-}}
-.inner.wrong{{animation:wrongShake .5s ease;}}
-</style></head><body>
-<div class="grid" id="grid"></div>
-<script>
-const EMOJIS = {emj_js};
-const matched = new Set({mm_js});
-const flipped = new Set({fl_js});
-const CAN = {can_js};
-
-// Track which two are currently flipped & pending
-let pendingWrong = false;
-
-function buildGrid() {{
-  const grid = document.getElementById('grid');
-  grid.innerHTML = '';
-  for (let i = 0; i < 16; i++) {{
-    const card = document.createElement('div');
-    card.className = 'card' + (matched.has(i) ? '' : (!CAN && !flipped.has(i) ? ' disabled' : ''));
-    card.dataset.idx = i;
-    
-    const inner = document.createElement('div');
-    inner.className = 'inner' + 
-      (matched.has(i) ? ' matched' : '') + 
-      (flipped.has(i) && !matched.has(i) ? ' flipped' : '');
-    inner.id = 'inner_' + i;
-    
-    const back = document.createElement('div');
-    back.className = 'back';
-    
-    const front = document.createElement('div');
-    front.className = 'front';
-    const span = document.createElement('span');
-    span.className = 'emoji';
-    span.textContent = EMOJIS[i];
-    front.appendChild(span);
-    
-    inner.appendChild(back);
-    inner.appendChild(front);
-    card.appendChild(inner);
-    grid.appendChild(card);
-    
-    if (!matched.has(i) && CAN) {{
-      card.addEventListener('click', () => handleFlip(i));
-    }}
-  }}
-}}
-
-function handleFlip(idx) {{
-  if (matched.has(idx) || flipped.has(idx) || !CAN) return;
-  // Send message to Streamlit parent
-  window.parent.postMessage({{type: 'mem_flip', idx: idx}}, '*');
-  // Immediately animate the flip locally for responsiveness
-  const inner = document.getElementById('inner_' + idx);
-  if (inner) inner.classList.add('flipped');
-}}
-
-buildGrid();
-</script></body></html>""", height=480, scrolling=False)
-
-    # Hidden buttons to handle clicks — Streamlit doesn't receive postMessage,
-    # so we show clickable numbered buttons below as the actual interaction layer
-    st.markdown("<br>",unsafe_allow_html=True)
-
-    # Show current state info
-    if fl:
-        vis=[f"Card {i+1}: {EMJ[b[i]]}" for i in sorted(set(fl)|mm)]
-        flipped_emojis = ' · '.join([EMJ[b[i]] for i in fl])
-        if vis: st.markdown(f"<div class='inf' style='font-size:12px;margin-bottom:8px'>Flipped: {flipped_emojis}</div>",unsafe_allow_html=True)
-
-    # Click buttons that actually work with Streamlit
-    available=[i for i in range(16) if i not in mm and i not in fl and can_flip]
-    if available:
-        st.markdown("<p style='color:#5566aa;font-size:11px;text-align:center;font-family:Share Tech Mono,monospace;margin-bottom:6px'>— CLICK A CARD NUMBER TO FLIP IT —</p>",unsafe_allow_html=True)
-
-        # Show 4x4 grid of buttons matching card positions
-        for row in range(4):
-            btn_cols = st.columns(4)
-            for col_i in range(4):
-                idx = row*4 + col_i
-                with btn_cols[col_i]:
-                    if idx in mm:
-                        em = EMJ[b[idx]]
-                        st.markdown(f"""<div style="height:52px;background:linear-gradient(135deg,rgba(57,255,20,.1),rgba(57,255,20,.03));
-border:1px solid rgba(57,255,20,.4);border-radius:10px;display:flex;align-items:center;
-justify-content:center;font-size:24px;box-shadow:0 0 12px rgba(57,255,20,.15)">{em}</div>""",unsafe_allow_html=True)
-                    elif idx in fl:
-                        em = EMJ[b[idx]]
-                        st.markdown(f"""<div style="height:52px;background:linear-gradient(135deg,rgba(0,245,255,.1),rgba(0,245,255,.03));
-border:2px solid rgba(0,245,255,.5);border-radius:10px;display:flex;align-items:center;
-justify-content:center;font-size:24px;box-shadow:0 0 16px rgba(0,245,255,.25)">{em}</div>""",unsafe_allow_html=True)
-                    elif not can_flip:
-                        st.markdown("""<div style="height:52px;background:rgba(191,95,255,.04);
-border:1px solid rgba(191,95,255,.15);border-radius:10px;display:flex;align-items:center;
-justify-content:center;font-size:14px;color:rgba(191,95,255,.3);font-family:Orbitron,sans-serif;font-weight:900">?</div>""",unsafe_allow_html=True)
-                    else:
-                        # Clickable
-                        if st.button(f"?", key=f"mc_{idx}_{mv}_{len(mm)}", use_container_width=True):
-                            fl.append(idx); st.session_state["mf"]=fl
-                            if len(fl)==2:
-                                st.session_state["mov"]=mv+1
-                                st.session_state["mpend"]=True
-                                st.session_state["mptime"]=time.time()
-                            st.rerun()
+    # Render card grid — clicking sends to Streamlit via hidden form pattern
+    # We render each card as a clickable div with streamlit buttons underneath styled to fill the card
+    for row in range(4):
+        btn_cols = st.columns(4)
+        for col_i in range(4):
+            idx = row*4 + col_i
+            with btn_cols[col_i]:
+                if idx in mm:
+                    em = EMJ[b[idx]]
+                    st.markdown(f"""<div style="height:80px;background:linear-gradient(135deg,rgba(57,255,20,.12),rgba(57,255,20,.04));
+border:2px solid rgba(57,255,20,.6);border-radius:12px;display:flex;align-items:center;
+justify-content:center;font-size:32px;box-shadow:0 0 16px rgba(57,255,20,.2);margin-bottom:4px;
+animation:matchPop .4s ease">{em}</div>
+<style>@keyframes matchPop{{0%{{transform:scale(.8)}}60%{{transform:scale(1.08)}}100%{{transform:scale(1)}}}}</style>""",unsafe_allow_html=True)
+                elif idx in fl:
+                    em = EMJ[b[idx]]
+                    st.markdown(f"""<div style="height:80px;background:linear-gradient(135deg,rgba(0,245,255,.12),rgba(0,245,255,.04));
+border:2px solid rgba(0,245,255,.6);border-radius:12px;display:flex;align-items:center;
+justify-content:center;font-size:32px;box-shadow:0 0 16px rgba(0,245,255,.2);margin-bottom:4px">{em}</div>""",unsafe_allow_html=True)
+                elif not can_flip:
+                    st.markdown("""<div style="height:80px;background:linear-gradient(135deg,rgba(191,95,255,.06),rgba(191,95,255,.02));
+border:1px solid rgba(191,95,255,.2);border-radius:12px;display:flex;align-items:center;
+justify-content:center;font-size:22px;color:rgba(191,95,255,.3);font-family:Orbitron,sans-serif;font-weight:900;margin-bottom:4px">?</div>""",unsafe_allow_html=True)
+                else:
+                    st.markdown("""<style>div.memCard .stButton>button{
+height:80px!important;min-height:80px!important;font-size:22px!important;
+background:linear-gradient(135deg,rgba(191,95,255,.1),rgba(191,95,255,.03))!important;
+border:1px solid rgba(191,95,255,.35)!important;border-radius:12px!important;
+color:rgba(191,95,255,.6)!important;font-weight:900!important;font-family:'Orbitron',sans-serif!important;
+transition:all .15s!important;margin-bottom:4px!important;}
+div.memCard .stButton>button:hover{background:rgba(191,95,255,.18)!important;border-color:rgba(191,95,255,.7)!important;
+box-shadow:0 0 18px rgba(191,95,255,.25)!important;transform:scale(1.04)!important;color:rgba(191,95,255,.9)!important;}
+</style>""",unsafe_allow_html=True)
+                    st.markdown('<div class="memCard">',unsafe_allow_html=True)
+                    if st.button("?", key=f"mc_{idx}_{mv}_{len(mm)}", use_container_width=True):
+                        fl.append(idx); st.session_state["mf"]=fl
+                        if len(fl)==2:
+                            st.session_state["mov"]=mv+1
+                            st.session_state["mpend"]=True
+                            st.session_state["mptime"]=time.time()
+                        st.rerun()
+                    st.markdown('</div>',unsafe_allow_html=True)
 
     st.markdown("<br>",unsafe_allow_html=True)
     c1,c2,c3=st.columns(3)
@@ -1043,7 +739,7 @@ justify-content:center;font-size:14px;color:rgba(191,95,255,.3);font-family:Orbi
     with c3: st.metric("🏆 Best",S("mem_hi",0))
 
 # ═══════════════════════════════════════════════════════
-#  TIC-TAC-TOE 1P — Full canvas with glow animations
+#  TIC-TAC-TOE 1P — consistent cell sizes
 # ═══════════════════════════════════════════════════════
 def _tw(b):
     for a,bx,c in[(0,1,2),(3,4,5),(6,7,8),(0,3,6),(1,4,7),(2,5,8),(0,4,8),(2,4,6)]:
@@ -1076,9 +772,44 @@ def _ai_move(b,weak=0):
 def _ttr():
     st.session_state.update({"tb":[""]*9,"to":False,"ts":"","tp":None})
 
+CELL_STYLE = """<style>
+div.tttCell .stButton>button{
+  height:96px!important;min-height:96px!important;width:100%!important;
+  background:linear-gradient(145deg,rgba(191,95,255,.08),rgba(191,95,255,.02))!important;
+  border:1px solid rgba(191,95,255,.25)!important;border-radius:14px!important;
+  font-size:0!important;transition:all .15s!important;
+}
+div.tttCell .stButton>button:hover{
+  background:rgba(191,95,255,.16)!important;border-color:rgba(191,95,255,.6)!important;
+  box-shadow:0 0 18px rgba(191,95,255,.2)!important;transform:scale(1.03)!important;
+}
+</style>"""
+
+def _ttt_cell_x():
+    return """<div style="height:96px;
+background:linear-gradient(145deg,rgba(0,245,255,.12),rgba(0,245,255,.04));
+border:2px solid rgba(0,245,255,.6);border-radius:14px;
+display:flex;align-items:center;justify-content:center;
+font-size:48px;font-weight:900;color:#00f5ff;
+text-shadow:0 0 20px rgba(0,245,255,.9);
+box-shadow:0 0 18px rgba(0,245,255,.12)">✕</div>"""
+
+def _ttt_cell_o():
+    return """<div style="height:96px;
+background:linear-gradient(145deg,rgba(255,0,110,.12),rgba(255,0,110,.04));
+border:2px solid rgba(255,0,110,.6);border-radius:14px;
+display:flex;align-items:center;justify-content:center;
+font-size:48px;font-weight:900;color:#ff006e;
+text-shadow:0 0 20px rgba(255,0,110,.9);
+box-shadow:0 0 18px rgba(255,0,110,.12)">○</div>"""
+
+def _ttt_cell_empty_over():
+    return """<div style="height:96px;background:rgba(255,255,255,.01);
+border:1px solid rgba(255,255,255,.05);border-radius:14px"></div>"""
+
 def page_ttt():
     st.markdown("<h1 style='text-align:center;letter-spacing:3px'>❌ TIC-TAC-TOE</h1>",unsafe_allow_html=True)
-    st.markdown("<p style='text-align:center;color:#5566aa;font-family:Share Tech Mono,monospace'>YOU = X (cyan) · AI = O (pink)</p>",unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center;color:#aabbdd;font-family:Share Tech Mono,monospace;font-size:14px'>YOU = X (cyan) · AI = O (pink)</p>",unsafe_allow_html=True)
     undo=oc("ttt_undo")
     if "tb" not in st.session_state: _ttr()
     b=st.session_state["tb"]; ov=S("to"); ts=S("ts",""); prev=S("tp")
@@ -1094,53 +825,20 @@ def page_ttt():
         cls="ok" if "Win" in ts else("err" if "Lost" in ts else "inf")
         st.markdown(f"<div class='{cls}' style='font-size:16px;padding:14px;margin-bottom:12px'>{ts}</div>",unsafe_allow_html=True)
 
-    # Render the board
     _,mc,_=st.columns([1,2,1])
     with mc:
         for row in range(3):
             rc=st.columns(3)
             for ci in range(3):
-                idx=row*3+ci
-                cell=b[idx]
+                idx=row*3+ci; cell=b[idx]
                 with rc[ci]:
                     if cell=="X":
-                        st.markdown("""<div style="height:90px;
-background:linear-gradient(145deg,rgba(0,245,255,.1),rgba(0,245,255,.03));
-border:2px solid rgba(0,245,255,.55);border-radius:14px;
-display:flex;align-items:center;justify-content:center;
-font-size:44px;font-weight:900;color:#00f5ff;
-text-shadow:0 0 20px rgba(0,245,255,.9),0 0 40px rgba(0,245,255,.4);
-box-shadow:0 0 20px rgba(0,245,255,.12),inset 0 1px 0 rgba(0,245,255,.15);
-animation:xPop .25s cubic-bezier(.34,1.56,.64,1) forwards">✕</div>
-<style>@keyframes xPop{from{transform:scale(.2) rotate(-15deg);opacity:0}to{transform:scale(1) rotate(0deg);opacity:1}}</style>""",unsafe_allow_html=True)
+                        st.markdown(_ttt_cell_x(), unsafe_allow_html=True)
                     elif cell=="O":
-                        st.markdown("""<div style="height:90px;
-background:linear-gradient(145deg,rgba(255,0,110,.1),rgba(255,0,110,.03));
-border:2px solid rgba(255,0,110,.55);border-radius:14px;
-display:flex;align-items:center;justify-content:center;
-font-size:44px;font-weight:900;color:#ff006e;
-text-shadow:0 0 20px rgba(255,0,110,.9),0 0 40px rgba(255,0,110,.4);
-box-shadow:0 0 20px rgba(255,0,110,.12),inset 0 1px 0 rgba(255,0,110,.15);
-animation:oPop .25s cubic-bezier(.34,1.56,.64,1) forwards">○</div>
-<style>@keyframes oPop{from{transform:scale(.2);opacity:0}to{transform:scale(1);opacity:1}}</style>""",unsafe_allow_html=True)
+                        st.markdown(_ttt_cell_o(), unsafe_allow_html=True)
                     elif not ov:
-                        # Clickable empty cell
-                        st.markdown("""<style>
-div.tttCell .stButton>button{
-  height:90px!important;min-height:90px!important;
-  background:linear-gradient(145deg,rgba(191,95,255,.06),rgba(191,95,255,.01))!important;
-  border:1px solid rgba(191,95,255,.2)!important;
-  border-radius:14px!important;font-size:0!important;
-  transition:all .18s!important;
-}
-div.tttCell .stButton>button:hover{
-  background:rgba(191,95,255,.14)!important;
-  border-color:rgba(191,95,255,.55)!important;
-  box-shadow:0 0 20px rgba(191,95,255,.2),inset 0 1px 0 rgba(191,95,255,.1)!important;
-  transform:scale(1.04)!important;
-}
-</style>""",unsafe_allow_html=True)
-                        st.markdown('<div class="tttCell">',unsafe_allow_html=True)
+                        st.markdown(CELL_STYLE, unsafe_allow_html=True)
+                        st.markdown('<div class="tttCell">', unsafe_allow_html=True)
                         if st.button(" ", key=f"tt_{idx}_{sum(1 for x in b if x)}", use_container_width=True):
                             st.session_state["tp"]=b[:]
                             b[idx]="X"; w=_tw(b)
@@ -1152,11 +850,9 @@ div.tttCell .stButton>button:hover{
                                 if w: _tte(w,b); st.stop()
                                 if ""not in b: _tte("d",b); st.stop()
                             st.session_state["tb"]=b; st.rerun()
-                        st.markdown('</div>',unsafe_allow_html=True)
+                        st.markdown('</div>', unsafe_allow_html=True)
                     else:
-                        st.markdown("""<div style="height:90px;
-background:rgba(255,255,255,.01);border:1px solid rgba(255,255,255,.04);
-border-radius:14px"></div>""",unsafe_allow_html=True)
+                        st.markdown(_ttt_cell_empty_over(), unsafe_allow_html=True)
 
     st.markdown("<br>",unsafe_allow_html=True)
     c1,c2,c3=st.columns(3)
@@ -1196,22 +892,18 @@ def page_clicker():
         st.markdown(f"""<div style="text-align:center;margin-bottom:12px">
 <div style="font-family:'Orbitron',sans-serif;font-size:56px;font-weight:900;
   color:{'#ff006e' if danger else '#00f5ff'};
-  text-shadow:0 0 30px {'rgba(255,0,110,.8)' if danger else 'rgba(0,245,255,.8)'};
-  {'animation:dangerPulse .3s ease-in-out infinite' if danger else ''}">{rem:.1f}</div>
-<div style="color:#5566aa;font-size:11px;font-family:Share Tech Mono,monospace">SECONDS REMAINING</div>
-</div>
-<style>@keyframes dangerPulse{{0%,100%{{transform:scale(1)}}50%{{transform:scale(1.05)}}}}</style>""",unsafe_allow_html=True)
+  text-shadow:0 0 30px {'rgba(255,0,110,.8)' if danger else 'rgba(0,245,255,.8)'}">{rem:.1f}</div>
+<div style="color:#aabbdd;font-size:12px;font-family:Share Tech Mono,monospace">SECONDS REMAINING</div>
+</div>""",unsafe_allow_html=True)
         st.progress(rem/dur)
         if rem<=0: st.session_state["cks"]="done"; st.rerun()
 
-    cl="#ff006e" if state=="playing" else("#39ff14" if state=="done" else "#5566aa")
+    col_c="#ff006e" if state=="playing" else("#39ff14" if state=="done" else "#aabbdd")
     st.markdown(f"""<div style="text-align:center;margin:12px 0">
 <div style="font-family:'Orbitron',sans-serif;font-size:80px;font-weight:900;
-  color:{cl};text-shadow:0 0 40px {cl}90;
-  {'animation:countUp .08s ease-out' if state=='playing' else ''}">{cnt}</div>
-<div style="color:#5566aa;font-size:12px;font-family:Share Tech Mono,monospace">CLICKS</div>
-</div>
-<style>@keyframes countUp{{from{{transform:scale(1.15)}}to{{transform:scale(1)}}}}</style>""",unsafe_allow_html=True)
+  color:{col_c};text-shadow:0 0 40px {col_c}90">{cnt}</div>
+<div style="color:#aabbdd;font-size:13px;font-family:Share Tech Mono,monospace">CLICKS</div>
+</div>""",unsafe_allow_html=True)
 
     _,c2,_=st.columns([1,2,1])
     with c2:
@@ -1223,19 +915,11 @@ def page_clicker():
             st.markdown('</div>',unsafe_allow_html=True)
         elif state=="playing":
             st.markdown("""<style>
-div.ckB .stButton>button{
-  background:linear-gradient(145deg,rgba(255,0,110,.25),rgba(255,0,110,.08))!important;
-  border:2px solid rgba(255,0,110,.7)!important;color:#ff006e!important;
-  font-size:24px!important;height:120px!important;font-weight:900!important;
-  letter-spacing:2px!important;
-  box-shadow:0 0 30px rgba(255,0,110,.2),inset 0 1px 0 rgba(255,0,110,.2)!important;
-  font-family:'Orbitron',sans-serif!important;
-}
-div.ckB .stButton>button:active{
-  transform:scale(.94)!important;
-  box-shadow:0 0 50px rgba(255,0,110,.4),inset 0 0 20px rgba(255,0,110,.1)!important;
-}
-</style>""",unsafe_allow_html=True)
+div.ckB .stButton>button{background:linear-gradient(145deg,rgba(255,0,110,.25),rgba(255,0,110,.08))!important;
+border:2px solid rgba(255,0,110,.7)!important;color:#ff006e!important;
+font-size:24px!important;height:120px!important;font-weight:900!important;letter-spacing:2px!important;
+box-shadow:0 0 30px rgba(255,0,110,.2)!important;font-family:'Orbitron',sans-serif!important;}
+div.ckB .stButton>button:active{transform:scale(.94)!important;}</style>""",unsafe_allow_html=True)
             st.markdown('<div class="ckB">',unsafe_allow_html=True)
             if st.button("👆 CLICK!",use_container_width=True,key="ckc_btn"):
                 st.session_state["ckc"]=cnt+mul; st.session_state["click_tot"]=S("click_tot",0)+mul; st.rerun()
@@ -1243,7 +927,7 @@ div.ckB .stButton>button:active{
         elif state=="done":
             final=S("ckc",0); e=earn(final*2); give_xp(final)
             if final>best: st.session_state["click_hi"]=final; add_ach(f"👆 Clicker Record: {final}!")
-            st.markdown(f"<div class='{'ok' if final>=best else 'inf'}' style='margin-bottom:12px;font-size:15px'>{final} clicks! +{e} coins</div>",unsafe_allow_html=True)
+            st.markdown(f"<div class='ok' style='margin-bottom:12px;font-size:15px'>{final} clicks! +{e} coins</div>",unsafe_allow_html=True)
             st.markdown('<div class="bG">',unsafe_allow_html=True)
             if st.button("🔄 Again",use_container_width=True,key="ckr"):
                 st.session_state["cks"]="idle"; st.session_state["ckc"]=0; st.rerun()
@@ -1256,7 +940,7 @@ div.ckB .stButton>button:active{
     with c3: st.metric("🎮 Rounds",S("click_ses",0))
 
 # ═══════════════════════════════════════════════════════
-#  SLOT MACHINE
+#  SLOT MACHINE — with roll animation, higher bet limit
 # ═══════════════════════════════════════════════════════
 SYM=["🍒","🍋","🍊","🍇","⭐","💎","🎰","🃏"]
 SW=[20,18,15,12,10,7,4,14]
@@ -1267,68 +951,59 @@ def page_slot():
     st.markdown("<h1 style='text-align:center;letter-spacing:3px'>🎰 SLOT MACHINE</h1>",unsafe_allow_html=True)
     lk=oc("slot_luck"); jp=oc("slot_jackpot"); rf=has("slot_refund")
     if lk or jp or rf:
-        parts=filter(None,[f"🍀 Luck +{lk}" if lk else "",f"💰 Jackpot x{2**jp}" if jp else "",f"↩ Refund" if rf else ""])
-        st.markdown(f"<div class='inf'>{'  |  '.join(parts)}</div>",unsafe_allow_html=True)
+        parts4=list(filter(None,[f"🍀 Luck +{lk}" if lk else "",f"💰 Jackpot x{2**jp}" if jp else "",f"↩ Refund" if rf else ""]))
+        st.markdown(f"<div class='inf'>{'  |  '.join(parts4)}</div>",unsafe_allow_html=True)
     if "slr" not in st.session_state:
-        st.session_state.update({"slr":[6,6,6],"slres":"","slbet":10})
+        st.session_state.update({"slr":[6,6,6],"slres":"","slbet":50,"sl_spinning":False,"sl_frame":0})
 
     reels=st.session_state["slr"]; res=S("slres",""); coins=S("coins",0)
     iw="Won" in res or "Jackpot" in res; ijp="Jackpot" in res
+    spinning=S("sl_spinning",False)
+    frame_n=S("sl_frame",0)
+
     r0,r1,r2=reels
 
+    # Slot display with CSS animation when spinning
+    spin_anim = "animation:reelSpin .08s steps(1) infinite;" if spinning else ""
     components.html(f"""<!DOCTYPE html><html><head><meta charset="UTF-8">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap');
 *{{margin:0;padding:0;box-sizing:border-box}}
 body{{background:transparent;display:flex;justify-content:center;align-items:center;padding:12px;font-family:'Orbitron',sans-serif}}
-.machine{{
-  background:linear-gradient(160deg,#1a0800,#240c00,#1a0800);
-  border:2px solid {('rgba(255,214,10,.85)' if iw else 'rgba(255,124,0,.4)')};
-  border-radius:20px;padding:22px 28px;max-width:420px;width:100%;
-  box-shadow:{('0 0 50px rgba(255,214,10,.4),0 0 100px rgba(255,214,10,.15)' if ijp else '0 0 20px rgba(255,124,0,.1)')},
-    inset 0 0 30px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,124,0,.12);
-  {('animation:jackpotFlash .4s infinite;' if ijp else '')}
+.machine{{background:linear-gradient(160deg,#1a0800,#240c00,#1a0800);
+  border:2px solid {'rgba(255,214,10,.85)' if iw else 'rgba(255,124,0,.4)'};
+  border-radius:20px;padding:22px 28px;max-width:440px;width:100%;
+  box-shadow:{'0 0 50px rgba(255,214,10,.4)' if iw else '0 0 20px rgba(255,124,0,.1)'};
+  {'animation:jackpotFlash .4s infinite;' if ijp else ''}
 }}
 @keyframes jackpotFlash{{0%,100%{{border-color:rgba(255,214,10,.9)}}50%{{border-color:rgba(255,214,10,.2)}}}}
-.title{{text-align:center;font-size:14px;font-weight:900;color:#ff7c00;
-  text-shadow:0 0 16px rgba(255,124,0,.8);letter-spacing:5px;margin-bottom:16px}}
-.reels-wrap{{
-  display:flex;gap:14px;justify-content:center;
-  background:linear-gradient(145deg,rgba(0,0,0,.7),rgba(10,5,0,.6));
-  border-radius:14px;padding:16px;border:1px solid rgba(255,124,0,.15);
-  box-shadow:inset 0 4px 20px rgba(0,0,0,.5)
-}}
-.reel{{
-  flex:1;max-width:100px;aspect-ratio:1;border-radius:12px;
-  display:flex;align-items:center;justify-content:center;
+.title{{text-align:center;font-size:14px;font-weight:900;color:#ff7c00;text-shadow:0 0 16px rgba(255,124,0,.8);letter-spacing:5px;margin-bottom:16px}}
+.reels-wrap{{display:flex;gap:14px;justify-content:center;background:linear-gradient(145deg,rgba(0,0,0,.7),rgba(10,5,0,.6));border-radius:14px;padding:16px;border:1px solid rgba(255,124,0,.15)}}
+.reel{{flex:1;max-width:100px;aspect-ratio:1;border-radius:12px;display:flex;align-items:center;justify-content:center;
   background:linear-gradient(145deg,#1a0800,#0f0500);
-  border:2px solid {('rgba(255,214,10,.6)' if iw else 'rgba(255,124,0,.25)')};
-  font-size:50px;position:relative;overflow:hidden;
-  box-shadow:{('0 0 24px rgba(255,214,10,.3),inset 0 0 20px rgba(255,214,10,.05)' if iw else 'inset 0 4px 12px rgba(0,0,0,.4)')};
-  {('animation:reelWin .6s cubic-bezier(.34,1.56,.64,1)' if iw else '')}
+  border:2px solid {'rgba(255,214,10,.6)' if iw else 'rgba(255,124,0,.25)'};
+  font-size:{'24px' if spinning else '50px'};overflow:hidden;
+  {'animation:reelSpin .12s steps(1) infinite;' if spinning else ''}
+  box-shadow:{'0 0 24px rgba(255,214,10,.3)' if iw else 'inset 0 4px 12px rgba(0,0,0,.4)'};
+  {'animation:reelWin .5s cubic-bezier(.34,1.56,.64,1);' if iw and not spinning else ''}
 }}
-@keyframes reelWin{{0%{{transform:scale(.8) rotate(-5deg)}}60%{{transform:scale(1.1) rotate(2deg)}}100%{{transform:scale(1) rotate(0deg)}}}}
-.reel::before{{content:'';position:absolute;top:0;left:0;right:0;height:30%;
-  background:linear-gradient(180deg,rgba(255,255,255,.05),transparent);border-radius:10px 10px 0 0}}
-.win-line{{
-  height:3px;margin:12px 0;
-  background:linear-gradient(90deg,transparent,{('#ffd60a' if iw else 'rgba(255,124,0,.2)')},transparent);
-  {('box-shadow:0 0 12px #ffd60a,0 0 24px rgba(255,214,10,.4);' if iw else '')}
-}}
+@keyframes reelSpin{{0%{{background:#1a1000}}25%{{background:#0f2000}}50%{{background:#200010}}75%{{background:#001020}}100%{{background:#1a1000}}}}
+@keyframes reelWin{{0%{{transform:scale(.8)}}60%{{transform:scale(1.1)}}100%{{transform:scale(1)}}}}
+.win-line{{height:3px;margin:12px 0;background:linear-gradient(90deg,transparent,{'#ffd60a' if iw else 'rgba(255,124,0,.2)'},transparent);{'box-shadow:0 0 12px #ffd60a;' if iw else ''}}}
 </style></head><body>
 <div class="machine">
   <div class="title">🎰 ARCADE SLOTS</div>
   <div class="reels-wrap">
-    <div class="reel" style="animation-delay:0s">{SYM[r0]}</div>
-    <div class="reel" style="animation-delay:.1s">{SYM[r1]}</div>
-    <div class="reel" style="animation-delay:.2s">{SYM[r2]}</div>
+    <div class="reel" style="animation-delay:0s">{'🎲' if spinning else SYM[r0]}</div>
+    <div class="reel" style="animation-delay:.04s">{'🎲' if spinning else SYM[r1]}</div>
+    <div class="reel" style="animation-delay:.08s">{'🎲' if spinning else SYM[r2]}</div>
   </div>
   <div class="win-line"></div>
 </div>
 </body></html>""", height=200, scrolling=False)
 
     st.markdown("<br>",unsafe_allow_html=True)
-    if res:
+    if res and not spinning:
         cls="ok" if iw else "err"
         icon = "🎉" if ijp else ("✅" if iw else "😔")
         st.markdown(f"<div class='{cls}' style='font-size:15px;padding:12px'>{icon} {res}</div>",unsafe_allow_html=True)
@@ -1336,26 +1011,24 @@ body{{background:transparent;display:flex;justify-content:center;align-items:cen
 
     c1,c2=st.columns([3,1])
     with c1:
-        maxbet=max(5,min(200,coins)) if coins>=5 else 5
-        bet=st.slider("Bet 💰",5,maxbet,min(S("slbet",10),maxbet),5,key="slsl")
+        maxbet=max(50,min(5000,coins)) if coins>=50 else 50
+        bet=st.slider("Bet 💰",50,maxbet,min(S("slbet",50),maxbet),50,key="slsl")
         st.session_state["slbet"]=bet
-    with c2: st.metric("Balance",coins)
+    with c2: st.metric("Balance",f"{coins:,}")
 
-    _,c2,_=st.columns([1,2,1])
-    with c2:
-        st.markdown("""<style>
-div.spB .stButton>button{
-  background:linear-gradient(135deg,rgba(255,124,0,.25),rgba(255,124,0,.08))!important;
-  border:2px solid rgba(255,124,0,.6)!important;color:#ff7c00!important;
-  font-size:18px!important;height:60px!important;font-weight:900!important;
-  letter-spacing:3px!important;font-family:'Orbitron',sans-serif!important;
-  box-shadow:0 0 24px rgba(255,124,0,.15),inset 0 1px 0 rgba(255,124,0,.1)!important;
-}
-div.spB .stButton>button:hover{{box-shadow:0 0 36px rgba(255,124,0,.4)!important;}}
-</style>""",unsafe_allow_html=True)
+    _,c2b,_=st.columns([1,2,1])
+    with c2b:
+        st.markdown("""<style>div.spB .stButton>button{background:linear-gradient(135deg,rgba(255,124,0,.25),rgba(255,124,0,.08))!important;
+border:2px solid rgba(255,124,0,.6)!important;color:#ff7c00!important;
+font-size:18px!important;height:60px!important;font-weight:900!important;letter-spacing:3px!important;
+font-family:'Orbitron',sans-serif!important;}</style>""",unsafe_allow_html=True)
         st.markdown('<div class="spB">',unsafe_allow_html=True)
-        if st.button("🎰  SPIN!",use_container_width=True,key="slsp",disabled=coins<bet):
-            _spin(bet,lk,jp,rf)
+        if spinning:
+            if st.button("⏳ SPINNING...",use_container_width=True,key="slsp2",disabled=True): pass
+            time.sleep(0.06); _spin(bet,lk,jp,rf); st.rerun()
+        else:
+            if st.button("🎰  SPIN!",use_container_width=True,key="slsp",disabled=coins<bet):
+                st.session_state["sl_spinning"]=True; st.rerun()
         st.markdown('</div>',unsafe_allow_html=True)
     if coins<bet: st.markdown("<div class='err'>Not enough coins!</div>",unsafe_allow_html=True)
 
@@ -1363,11 +1036,11 @@ div.spB .stButton>button:hover{{box-shadow:0 0 36px rgba(255,124,0,.4)!important
     with st.expander("📋 Paytable"):
         for idx,mult in PAY.items():
             am=mult*(2**jp if mult>=50 else 1)
-            st.markdown(f"""<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 12px;
-background:linear-gradient(135deg,rgba(255,124,0,.04),transparent);border-radius:8px;margin-bottom:3px;border:1px solid rgba(255,124,0,.06)">
-<span style="font-size:24px">{SYM[idx]*3}</span>
-<span style="color:#5566aa;font-size:12px;font-family:Share Tech Mono,monospace">{SYM_NAMES[idx]}</span>
-<span style="color:#ff7c00;font-weight:900;font-family:'Orbitron',sans-serif;font-size:14px">×{am}</span></div>""",unsafe_allow_html=True)
+            st.markdown(f"""<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 14px;
+background:linear-gradient(135deg,rgba(255,124,0,.05),transparent);border-radius:8px;margin-bottom:4px;border:1px solid rgba(255,124,0,.08)">
+<span style="font-size:26px">{SYM[idx]*3}</span>
+<span style="color:#aabbdd;font-size:13px;font-family:Share Tech Mono,monospace">{SYM_NAMES[idx]}</span>
+<span style="color:#ff7c00;font-weight:900;font-family:'Orbitron',sans-serif;font-size:15px">×{am}</span></div>""",unsafe_allow_html=True)
     st.markdown("---")
     c1,c2,c3=st.columns(3)
     with c1: st.metric("🎰 Spins",S("slot_sp",0))
@@ -1379,7 +1052,7 @@ def _spin(bet,lk,jp,rf):
     w=SW[:]
     for i in[4,5,6]: w[i]=int(w[i]*(1+lk*0.28))
     r=[random.choices(range(8),weights=w,k=1)[0] for _ in range(3)]
-    st.session_state["slr"]=r
+    st.session_state["slr"]=r; st.session_state["sl_spinning"]=False
     if r[0]==r[1]==r[2]:
         pay=PAY[r[0]]*(2**jp if r[0]>=4 else 1)
         won=bet*pay; e=earn(won); give_xp(won//5)
@@ -1392,136 +1065,245 @@ def _spin(bet,lk,jp,rf):
     else:
         if rf: rb=max(1,int(bet*.1)); earn(rb); st.session_state["slres"]=f"Lost {bet} coins. Refund: {rb}"
         else: st.session_state["slres"]=f"Lost {bet} coins. Try again!"
-    st.rerun()
 
 # ═══════════════════════════════════════════════════════
-#  PONG 1P
+#  PONG 1P — speed increases per hit, no new game button
 # ═══════════════════════════════════════════════════════
 def page_pong():
     st.markdown("<h1 style='text-align:center;letter-spacing:3px'>🏓 PONG</h1>",unsafe_allow_html=True)
-    st.markdown("<p style='text-align:center;color:#5566aa;font-family:Share Tech Mono,monospace'>W/S or ↑/↓ to move · First to 7 wins</p>",unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center;color:#aabbdd;font-family:Share Tech Mono,monospace;font-size:14px'>W/S or ↑/↓ to move · First to 7 wins</p>",unsafe_allow_html=True)
     spb=2+oc("pong_speed"); hi=S("pong_hi",0)
     _,col,_=st.columns([1,10,1])
     with col:
-        components.html(f"""<!DOCTYPE html><html><head><meta charset="UTF-8">
-<style>*{{margin:0;padding:0;box-sizing:border-box}}
-body{{background:#04040f;display:flex;flex-direction:column;align-items:center;padding:10px;user-select:none}}
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap');
-canvas{{border:2px solid rgba(0,245,255,.2);border-radius:12px;
-  box-shadow:0 0 40px rgba(0,245,255,.08),0 0 80px rgba(0,245,255,.03);display:block}}
-.ov{{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  background:linear-gradient(145deg,rgba(4,4,20,.97),rgba(8,8,28,.97));
-  border:1px solid rgba(0,245,255,.4);border-radius:16px;padding:24px 32px;text-align:center;
-  backdrop-filter:blur(20px);box-shadow:0 0 40px rgba(0,245,255,.12)}}
-.ov h2{{color:#00f5ff;font-family:'Orbitron',sans-serif;font-size:18px;margin-bottom:8px;text-shadow:0 0 16px rgba(0,245,255,.7)}}
-.ov p{{color:#8899bb;font-size:12px;margin-bottom:14px;font-family:Share Tech Mono,monospace}}
-.ov button{{background:linear-gradient(135deg,rgba(0,245,255,.2),rgba(0,245,255,.06));
-  color:#00f5ff;border:1px solid rgba(0,245,255,.5);padding:9px 22px;
-  border-radius:8px;cursor:pointer;font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;transition:all .18s}}
-.ov button:hover{{background:rgba(0,245,255,.3)}}
-.wrap{{position:relative}}</style></head><body>
+        pong_html = """<!DOCTYPE html><html><head><meta charset="UTF-8">
+<style>*{margin:0;padding:0;box-sizing:border-box}
+body{background:#04040f;display:flex;flex-direction:column;align-items:center;padding:10px;user-select:none;font-family:'Share Tech Mono',monospace}
+canvas{border:2px solid rgba(0,245,255,.2);border-radius:12px;box-shadow:0 0 40px rgba(0,245,255,.08);display:block}
+.ov{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+background:linear-gradient(145deg,rgba(4,4,20,.97),rgba(8,8,28,.97));
+border:1px solid rgba(0,245,255,.5);border-radius:16px;padding:28px 36px;text-align:center;backdrop-filter:blur(20px)}
+.ov h2{color:#00f5ff;font-family:'Orbitron',sans-serif;font-size:20px;margin-bottom:10px;text-shadow:0 0 16px rgba(0,245,255,.8)}
+.ov p{color:#aabbdd;font-size:13px;margin-bottom:16px}
+.ov button{background:linear-gradient(135deg,rgba(0,245,255,.2),rgba(0,245,255,.06));color:#00f5ff;border:1px solid rgba(0,245,255,.5);padding:10px 24px;border-radius:8px;cursor:pointer;font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;transition:all .18s}
+.ov button:hover{background:rgba(0,245,255,.3)}
+.wrap{position:relative}</style></head><body>
 <div class="wrap"><canvas id="c" width="520" height="320"></canvas>
 <div class="ov" id="ov"><h2>🏓 PONG</h2><p>W/S or ↑/↓ · First to 7</p><button onclick="start()">▶ PLAY</button></div></div>
 <script>
-const W=520,H=320,PW=10,PH=70,BR=7,SPB={spb};
-const cv=document.getElementById('c'),ctx=cv.getContext('2d');
-let p1y,p2y,bx,by,vx,vy,s1,s2,run,raf,keys={{}},trail=[],parts=[];
-function start(){{
+var W=520,H=320,PW=10,PH=70,BR=7,BASE_SPD=SPB_PH;
+var cv=document.getElementById('c'),ctx=cv.getContext('2d');
+var p1y,p2y,bx,by,vx,vy,s1,s2,run,raf,keys={},trail=[],parts5=[],hitCount=0;
+function start(){
   document.getElementById('ov').style.display='none';
-  p1y=H/2-PH/2;p2y=H/2-PH/2;bx=W/2;by=H/2;
-  let a=(Math.random()*.8+.1)*Math.PI*(Math.random()<.5?1:-1);
-  vx=Math.cos(a)*(SPB+1.5);vy=Math.sin(a)*SPB;
-  s1=s2=0;run=true;trail=[];parts=[];
+  p1y=H/2-PH/2;p2y=H/2-PH/2;bx=W/2;by=H/2;hitCount=0;
+  var a=(Math.random()*.5+.2)*Math.PI*(Math.random()<.5?1:-1);
+  vx=Math.cos(a)*BASE_SPD;vy=Math.sin(a)*(BASE_SPD*.6);
+  s1=s2=0;run=true;trail=[];parts5=[];
   if(raf)cancelAnimationFrame(raf);loop();
-}}
-document.addEventListener('keydown',e=>{{keys[e.code]=true;if(['KeyW','KeyS','ArrowUp','ArrowDown'].includes(e.code))e.preventDefault();}});
-document.addEventListener('keyup',e=>keys[e.code]=false);
-function loop(){{if(!run)return;update();draw();raf=requestAnimationFrame(loop);}}
-function update(){{
+}
+document.addEventListener('keydown',function(e){keys[e.code]=true;if(['KeyW','KeyS','ArrowUp','ArrowDown'].includes(e.code))e.preventDefault();});
+document.addEventListener('keyup',function(e){keys[e.code]=false;});
+function loop(){if(!run)return;update();draw();raf=requestAnimationFrame(loop);}
+function update(){
   if(keys['KeyW']||keys['ArrowUp'])p1y=Math.max(0,p1y-5.5);
   if(keys['KeyS']||keys['ArrowDown'])p1y=Math.min(H-PH,p1y+5.5);
-  let cy=p2y+PH/2;
-  if(by<cy-4)p2y=Math.max(0,p2y-4.5);
-  else if(by>cy+4)p2y=Math.min(H-PH,p2y+4.5);
+  var cy=p2y+PH/2;
+  if(by<cy-4)p2y=Math.max(0,p2y-4.8);
+  else if(by>cy+4)p2y=Math.min(H-PH,p2y+4.8);
   bx+=vx;by+=vy;
-  if(by<=BR||by>=H-BR){{vy=-vy;spark(bx,by,'#ffd60a');}}
-  if(bx<=22+PW&&by>=p1y&&by<=p1y+PH){{
-    vx=Math.abs(vx)*(1+s1*.03);vy+=(by-(p1y+PH/2))*.12;spark(bx,by,'#00f5ff');
-  }}
-  if(bx>=W-22-PW&&by>=p2y&&by<=p2y+PH){{
-    vx=-Math.abs(vx)*(1+s2*.03);vy+=(by-(p2y+PH/2))*.12;spark(bx,by,'#ff006e');
-  }}
-  trail.unshift({{x:bx,y:by,l:12}});if(trail.length>14)trail.pop();
-  trail.forEach(t=>t.l--);trail=trail.filter(t=>t.l>0);
-  parts=parts.filter(p=>p.l>0);parts.forEach(p=>{{p.x+=p.vx;p.y+=p.vy;p.l--;p.vx*=.92;}});
-  if(bx<0){{s2++;if(s2>=7){{endGame('AI Wins!');return;}}reset();}}
-  if(bx>W){{s1++;if(s1>=7){{endGame('You Win! 🎉');return;}}reset();}}
-}}
-function spark(x,y,c){{for(let i=0;i<10;i++)parts.push({{x,y,vx:(Math.random()-.5)*6,vy:(Math.random()-.5)*6,l:20,c}});}}
-function reset(){{
-  bx=W/2;by=H/2;
-  let a=(Math.random()*.8+.1)*Math.PI*(Math.random()<.5?1:-1);
-  vx=Math.cos(a)*(SPB+1.5+Math.max(s1,s2)*.2);vy=Math.sin(a)*SPB;trail=[];
-}}
-function endGame(msg){{
+  if(by<=BR){by=BR;vy=Math.abs(vy);spark(bx,by,'#ffd60a');}
+  if(by>=H-BR){by=H-BR;vy=-Math.abs(vy);spark(bx,by,'#ffd60a');}
+  // Player paddle hit
+  if(vx<0&&bx<=22+PW&&bx>=16&&by>=p1y&&by<=p1y+PH){
+    hitCount++;var spd=BASE_SPD+hitCount*0.18;
+    var relY=(by-(p1y+PH/2))/(PH/2);
+    var angle=relY*0.85;
+    vx=Math.abs(Math.cos(angle)*spd);
+    vy=Math.sin(angle)*spd;
+    bx=22+PW+1;spark(bx,by,'#00f5ff');
+  }
+  // AI paddle hit
+  if(vx>0&&bx>=W-22-PW&&bx<=W-16&&by>=p2y&&by<=p2y+PH){
+    hitCount++;var spd2=BASE_SPD+hitCount*0.18;
+    var relY2=(by-(p2y+PH/2))/(PH/2);
+    var angle2=relY2*0.85;
+    vx=-Math.abs(Math.cos(angle2)*spd2);
+    vy=Math.sin(angle2)*spd2;
+    bx=W-22-PW-1;spark(bx,by,'#ff006e');
+  }
+  trail.unshift({x:bx,y:by,l:12});if(trail.length>14)trail.pop();
+  trail.forEach(function(t){t.l--;});trail=trail.filter(function(t){return t.l>0;});
+  parts5=parts5.filter(function(p){return p.l>0;});
+  parts5.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.l--;p.vx*=.92;});
+  if(bx<0){s2++;hitCount=0;if(s2>=7){endGame('AI Wins!');return;}reset();}
+  if(bx>W){s1++;hitCount=0;if(s1>=7){endGame('You Win! 🎉');return;}reset();}
+}
+function spark(x,y,c){for(var i=0;i<10;i++)parts5.push({x:x,y:y,vx:(Math.random()-.5)*6,vy:(Math.random()-.5)*6,l:20,c:c});}
+function reset(){
+  bx=W/2;by=H/2;hitCount=0;
+  var a=(Math.random()*.5+.2)*Math.PI*(Math.random()<.5?1:-1);
+  vx=Math.cos(a)*BASE_SPD;vy=Math.sin(a)*(BASE_SPD*.6);trail=[];
+}
+function endGame(msg){
   run=false;cancelAnimationFrame(raf);
   document.getElementById('ov').querySelector('h2').textContent=msg;
   document.getElementById('ov').querySelector('p').textContent='You: '+s1+' | AI: '+s2;
   document.getElementById('ov').style.display='block';
-}}
-function draw(){{
-  // Scanline bg
-  let bg=ctx.createLinearGradient(0,0,0,H);bg.addColorStop(0,'#04040f');bg.addColorStop(1,'#04040f');
-  ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
-  // Center line
+}
+function draw(){
+  ctx.fillStyle='#04040f';ctx.fillRect(0,0,W,H);
   ctx.setLineDash([10,10]);ctx.strokeStyle='rgba(0,245,255,.07)';ctx.lineWidth=1;
   ctx.beginPath();ctx.moveTo(W/2,0);ctx.lineTo(W/2,H);ctx.stroke();ctx.setLineDash([]);
-  // Score
-  ctx.fillStyle='rgba(0,245,255,.9)';ctx.font='bold 32px Orbitron,monospace';ctx.textAlign='center';
-  ctx.shadowBlur=16;ctx.shadowColor='rgba(0,245,255,.6)';ctx.fillText(s1,W/2-70,42);
+  ctx.font='bold 32px Orbitron,monospace';ctx.textAlign='center';
+  ctx.fillStyle='rgba(0,245,255,.9)';ctx.shadowBlur=14;ctx.shadowColor='rgba(0,245,255,.6)';ctx.fillText(s1,W/2-70,42);
   ctx.fillStyle='rgba(255,0,110,.9)';ctx.shadowColor='rgba(255,0,110,.6)';ctx.fillText(s2,W/2+70,42);ctx.shadowBlur=0;
-  // Trail
-  trail.forEach((t,i)=>{{
-    ctx.globalAlpha=t.l/12*.5;ctx.fillStyle='#ffd60a';ctx.shadowBlur=4;ctx.shadowColor='#ffd60a';
-    ctx.beginPath();ctx.arc(t.x,t.y,BR*(t.l/12),0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
-  }});ctx.globalAlpha=1;
-  // Particles
-  parts.forEach(p=>{{
+  // Speed indicator
+  ctx.font='10px monospace';ctx.fillStyle='rgba(255,214,10,.5)';ctx.textAlign='center';
+  ctx.fillText('spd: '+(BASE_SPD+hitCount*0.18).toFixed(1),W/2,H-8);
+  trail.forEach(function(t){
+    ctx.globalAlpha=t.l/12*.5;ctx.fillStyle='#ffd60a';
+    ctx.beginPath();ctx.arc(t.x,t.y,BR*(t.l/12),0,Math.PI*2);ctx.fill();
+  });ctx.globalAlpha=1;
+  parts5.forEach(function(p){
     ctx.globalAlpha=p.l/20;ctx.fillStyle=p.c;ctx.shadowBlur=5;ctx.shadowColor=p.c;
     ctx.beginPath();ctx.arc(p.x,p.y,2.5,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
-  }});ctx.globalAlpha=1;
-  // Paddles
-  [{{'x':16,'y':p1y,'c':'#00f5ff'}},{{'x':W-16-PW,'y':p2y,'c':'#ff006e'}}].forEach(p=>{{
-    let g=ctx.createLinearGradient(p.x,0,p.x+PW,0);
-    g.addColorStop(0,p.c+'aa');g.addColorStop(.5,p.c);g.addColorStop(1,p.c+'aa');
+  });ctx.globalAlpha=1;
+  [{x:16,y:p1y,c:'#00f5ff'},{x:W-16-PW,y:p2y,c:'#ff006e'}].forEach(function(p){
+    var g=ctx.createLinearGradient(p.x,0,p.x+PW,0);
+    g.addColorStop(0,p.c+'88');g.addColorStop(.5,p.c);g.addColorStop(1,p.c+'88');
     ctx.fillStyle=g;ctx.shadowBlur=18;ctx.shadowColor=p.c;
-    ctx.beginPath();ctx.roundRect(p.x,p.y,PW,PH,5);ctx.fill();
-    ctx.fillStyle='rgba(255,255,255,.25)';ctx.beginPath();ctx.roundRect(p.x+2,p.y+4,3,PH-8,2);ctx.fill();
-    ctx.shadowBlur=0;
-  }});
-  // Ball
-  let bg2=ctx.createRadialGradient(bx-2,by-2,1,bx,by,BR);
+    ctx.beginPath();ctx.roundRect(p.x,p.y,PW,PH,5);ctx.fill();ctx.shadowBlur=0;
+  });
+  var bg2=ctx.createRadialGradient(bx-2,by-2,1,bx,by,BR);
   bg2.addColorStop(0,'#fff');bg2.addColorStop(.5,'#ffd60a');bg2.addColorStop(1,'#ff8800');
   ctx.fillStyle=bg2;ctx.shadowBlur=20;ctx.shadowColor='rgba(255,214,10,.9)';
   ctx.beginPath();ctx.arc(bx,by,BR,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
-}}
+}
 ctx.fillStyle='#04040f';ctx.fillRect(0,0,W,H);
-</script></body></html>""", height=370, scrolling=False)
-    st.markdown("<br>",unsafe_allow_html=True)
-    _,c2,_=st.columns([1,2,1])
-    with c2:
-        st.markdown('<div class="bG">',unsafe_allow_html=True)
-        if st.button("▶ New Game",use_container_width=True,key="pnew"):
-            st.session_state["pong_pl"]=S("pong_pl",0)+1; earn(5); give_xp(5)
-        st.markdown('</div>',unsafe_allow_html=True)
+</script></body></html>"""
+        pong_html = pong_html.replace("SPB_PH", str(spb))
+        components.html(pong_html, height=370, scrolling=False)
     st.markdown("---")
     c1,c2=st.columns(2)
     with c1: st.metric("🏆 Best",S("pong_hi",0))
     with c2: st.metric("🎮 Games",S("pong_pl",0))
 
 # ═══════════════════════════════════════════════════════
-#  MINESWEEPER
+#  MINESWEEPER — animated Google-style
 # ═══════════════════════════════════════════════════════
+def page_minesweeper():
+    st.markdown("<h1 style='text-align:center;letter-spacing:3px'>💣 MINESWEEPER</h1>",unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center;color:#aabbdd;font-family:Share Tech Mono,monospace;font-size:14px'>Click a cell to reveal · Right-click context: use Flag button</p>",unsafe_allow_html=True)
+
+    if "ms_b" not in st.session_state:
+        _ms_init()
+
+    c1,c2,c3=st.columns(3)
+    with c1: pass
+    with c2: diff=st.selectbox("Difficulty",["Easy (6×6, 7 mines)","Normal (8×8, 10 mines)","Hard (10×10, 18 mines)"],key="ms_diff",label_visibility="visible")
+    with c3: pass
+
+    b=st.session_state["ms_b"]; rev=st.session_state["ms_rev"]; flags=st.session_state["ms_flag"]
+    rows=S("ms_rows",8); cols_n=S("ms_cols",8); mines=S("ms_mines",10); over=S("ms_over"); win=S("ms_win")
+    safe_total=rows*cols_n-mines; rev_safe=sum(1 for i in rev if b[i//cols_n][i%cols_n]!=-1)
+
+    c1,c2,c3,c4=st.columns(4)
+    with c1: st.metric("💣 Mines Left",mines-len(flags))
+    with c2: st.metric("✅ Safe Found",f"{rev_safe}/{safe_total}")
+    with c3: st.metric("🚩 Flags",len(flags))
+    with c4:
+        _,mc2,_=st.columns([1,3,1])
+        with mc2:
+            st.markdown('<div class="br">',unsafe_allow_html=True)
+            if st.button("🔄 New",use_container_width=True,key="msnew"):
+                d=S("ms_diff","Normal (8×8, 10 mines)")
+                if "6×6" in d: _ms_init(6,6,7)
+                elif "10×10" in d: _ms_init(10,10,18)
+                else: _ms_init(8,8,10)
+                st.rerun()
+            st.markdown('</div>',unsafe_allow_html=True)
+
+    if over:
+        if win: st.markdown("<div class='ok' style='font-size:16px;padding:14px;margin:10px 0'>🎉 Field cleared! 💰 +80 coins</div>",unsafe_allow_html=True)
+        else: st.markdown("<div class='err' style='font-size:16px;padding:14px;margin:10px 0'>💥 BOOM! Hit a mine!</div>",unsafe_allow_html=True)
+
+    COLORS={1:"#00f5ff",2:"#39ff14",3:"#ff006e",4:"#bf5fff",5:"#ff7c00",6:"#ffd60a",7:"#fff",8:"#aaa"}
+
+    # Render the grid with animation styles
+    st.markdown("""<style>
+.ms-cell{transition:all .15s cubic-bezier(.34,1.56,.64,1);cursor:pointer;}
+div.msReveal .stButton>button{
+  height:44px!important;min-height:44px!important;font-size:13px!important;font-weight:700!important;
+  background:linear-gradient(135deg,rgba(0,245,255,.08),rgba(0,245,255,.02))!important;
+  border:1px solid rgba(0,245,255,.25)!important;border-radius:8px!important;
+  color:#aabbdd!important;letter-spacing:0!important;padding:0!important;
+  transition:all .12s!important;
+}
+div.msReveal .stButton>button:hover{background:rgba(0,245,255,.18)!important;border-color:rgba(0,245,255,.5)!important;transform:scale(1.06)!important;}
+div.msFlag .stButton>button{
+  height:44px!important;min-height:44px!important;font-size:13px!important;
+  background:linear-gradient(135deg,rgba(255,214,10,.1),rgba(255,214,10,.03))!important;
+  border:1px solid rgba(255,214,10,.35)!important;border-radius:8px!important;
+  color:#ffd60a!important;transition:all .12s!important;
+}
+div.msFlag .stButton>button:hover{background:rgba(255,214,10,.2)!important;transform:scale(1.06)!important;}
+div.msFlagRemove .stButton>button{
+  height:44px!important;min-height:44px!important;font-size:13px!important;
+  background:linear-gradient(135deg,rgba(255,0,110,.1),rgba(255,0,110,.03))!important;
+  border:1px solid rgba(255,0,110,.35)!important;border-radius:8px!important;
+  color:#ff006e!important;
+}
+</style>""",unsafe_allow_html=True)
+
+    _,mc,_=st.columns([1,6,1])
+    with mc:
+        for r in range(rows):
+            rc=st.columns(cols_n)
+            for c in range(cols_n):
+                idx=r*cols_n+c; cell=b[r][c]
+                with rc[c]:
+                    if idx in rev:
+                        if cell==-1:
+                            st.markdown("""<div style="height:44px;background:linear-gradient(135deg,rgba(255,0,110,.25),rgba(255,0,110,.08));
+border:2px solid rgba(255,0,110,.6);border-radius:8px;display:flex;align-items:center;
+justify-content:center;font-size:20px;animation:mineExplode .3s ease;margin-bottom:2px">💥</div>
+<style>@keyframes mineExplode{0%{transform:scale(.5);opacity:.5}60%{transform:scale(1.2)}100%{transform:scale(1)}}</style>""",unsafe_allow_html=True)
+                        elif cell==0:
+                            st.markdown("""<div style="height:44px;background:rgba(57,255,20,.05);
+border:1px solid rgba(57,255,20,.15);border-radius:8px;display:flex;align-items:center;
+justify-content:center;font-size:12px;color:rgba(57,255,20,.3);animation:cellReveal .2s ease;margin-bottom:2px">·</div>
+<style>@keyframes cellReveal{0%{transform:scale(.8);opacity:0}100%{transform:scale(1);opacity:1}}</style>""",unsafe_allow_html=True)
+                        else:
+                            col_c=COLORS.get(cell,"#fff")
+                            st.markdown(f"""<div style="height:44px;background:rgba(255,255,255,.04);
+border:1px solid rgba(255,255,255,.1);border-radius:8px;display:flex;align-items:center;
+justify-content:center;font-size:15px;font-weight:900;color:{col_c};
+font-family:'Orbitron',sans-serif;text-shadow:0 0 8px {col_c};animation:cellReveal .2s ease;margin-bottom:2px">{cell}</div>""",unsafe_allow_html=True)
+                    elif idx in flags:
+                        st.markdown("""<div style="height:44px;background:linear-gradient(135deg,rgba(255,214,10,.12),rgba(255,214,10,.04));
+border:1px solid rgba(255,214,10,.5);border-radius:8px;display:flex;align-items:center;
+justify-content:center;font-size:20px;margin-bottom:2px">🚩</div>""",unsafe_allow_html=True)
+                        if not over:
+                            st.markdown('<div class="msFlagRemove">',unsafe_allow_html=True)
+                            if st.button("✕",key=f"msu_{idx}_{len(rev)}",use_container_width=True):
+                                flags.discard(idx); st.session_state["ms_flag"]=flags; st.rerun()
+                            st.markdown('</div>',unsafe_allow_html=True)
+                    elif not over:
+                        col1b,col2b=st.columns(2)
+                        with col1b:
+                            st.markdown('<div class="msReveal">',unsafe_allow_html=True)
+                            if st.button("·",key=f"msr_{idx}_{len(rev)}",use_container_width=True):
+                                _ms_rev(idx,b,rev,flags,rows,cols_n,mines)
+                            st.markdown('</div>',unsafe_allow_html=True)
+                        with col2b:
+                            st.markdown('<div class="msFlag">',unsafe_allow_html=True)
+                            if st.button("🚩",key=f"msf_{idx}_{len(rev)}",use_container_width=True):
+                                flags.add(idx); st.session_state["ms_flag"]=flags; st.rerun()
+                            st.markdown('</div>',unsafe_allow_html=True)
+                    else:
+                        st.markdown("""<div style="height:44px;background:rgba(255,255,255,.01);
+border:1px solid rgba(255,255,255,.04);border-radius:8px;margin-bottom:2px"></div>""",unsafe_allow_html=True)
+
 def _ms_init(rows=8,cols=8,mines=10):
     board=[[0]*cols for _ in range(rows)]
     mset=set(random.sample(range(rows*cols),mines))
@@ -1531,66 +1313,6 @@ def _ms_init(rows=8,cols=8,mines=10):
             if board[r][c]==-1: continue
             board[r][c]=sum(1 for dr in[-1,0,1] for dc in[-1,0,1] if 0<=r+dr<rows and 0<=c+dc<cols and board[r+dr][c+dc]==-1)
     st.session_state.update({"ms_b":board,"ms_rev":set(),"ms_flag":set(),"ms_rows":rows,"ms_cols":cols,"ms_mines":mines,"ms_over":False,"ms_win":False})
-
-def page_minesweeper():
-    st.markdown("<h1 style='text-align:center;letter-spacing:3px'>💣 MINESWEEPER</h1>",unsafe_allow_html=True)
-    st.markdown("<p style='text-align:center;color:#5566aa;font-family:Share Tech Mono,monospace'>? = reveal · 🚩 = flag</p>",unsafe_allow_html=True)
-    if "ms_b" not in st.session_state: _ms_init()
-    b=st.session_state["ms_b"]; rev=st.session_state["ms_rev"]; flags=st.session_state["ms_flag"]
-    rows=S("ms_rows",8); cols_n=S("ms_cols",8); mines=S("ms_mines",10); over=S("ms_over"); win=S("ms_win")
-    safe_total=rows*cols_n-mines; rev_safe=sum(1 for i in rev if b[i//cols_n][i%cols_n]!=-1)
-    c1,c2,c3,c4=st.columns(4)
-    with c1: st.metric("💣 Mines",mines-len(flags))
-    with c2: st.metric("✅ Revealed",f"{rev_safe}/{safe_total}")
-    with c3: st.metric("🚩 Flags",len(flags))
-    with c4: diff=st.selectbox("Difficulty",["Easy (6×6)","Normal (8×8)","Hard (10×10)"],key="ms_diff",label_visibility="visible")
-    st.markdown("<br>",unsafe_allow_html=True)
-    if over:
-        if win: st.markdown("<div class='ok' style='font-size:16px;padding:14px'>🎉 You cleared the field!</div>",unsafe_allow_html=True)
-        else: st.markdown("<div class='err' style='font-size:16px;padding:14px'>💥 BOOM! Hit a mine!</div>",unsafe_allow_html=True)
-    COLORS={0:"#334",1:"#00f5ff",2:"#39ff14",3:"#ff006e",4:"#bf5fff",5:"#ff7c00",6:"#ffd60a",7:"#fff",8:"#888"}
-    _,mc,_=st.columns([1,5,1])
-    with mc:
-        for r in range(rows):
-            rc=st.columns(cols_n)
-            for c in range(cols_n):
-                idx=r*cols_n+c; cell=b[r][c]
-                with rc[c]:
-                    if idx in rev:
-                        if cell==-1:
-                            st.markdown("""<div style="height:36px;background:linear-gradient(135deg,rgba(255,0,110,.2),rgba(255,0,110,.06));
-border:1px solid rgba(255,0,110,.5);border-radius:7px;display:flex;align-items:center;
-justify-content:center;font-size:16px;box-shadow:0 0 10px rgba(255,0,110,.2)">💥</div>""",unsafe_allow_html=True)
-                        else:
-                            col_c=COLORS.get(cell,"#fff"); txt=str(cell) if cell else "·"
-                            st.markdown(f"""<div style="height:36px;background:rgba(255,255,255,.03);
-border:1px solid rgba(255,255,255,.06);border-radius:7px;display:flex;align-items:center;
-justify-content:center;font-size:13px;font-weight:700;color:{col_c};
-font-family:Share Tech Mono,monospace">{txt}</div>""",unsafe_allow_html=True)
-                    elif idx in flags:
-                        st.markdown("""<div style="height:36px;background:linear-gradient(135deg,rgba(255,214,10,.1),rgba(255,214,10,.03));
-border:1px solid rgba(255,214,10,.4);border-radius:7px;display:flex;align-items:center;
-justify-content:center;font-size:14px">🚩</div>""",unsafe_allow_html=True)
-                        if not over and st.button("✕",key=f"msu_{idx}",use_container_width=True):
-                            flags.discard(idx); st.session_state["ms_flag"]=flags; st.rerun()
-                    elif not over:
-                        c1b,c2b=st.columns(2)
-                        with c1b:
-                            if st.button("?",key=f"msr_{idx}",use_container_width=True): _ms_rev(idx,b,rev,flags,rows,cols_n,mines)
-                        with c2b:
-                            if st.button("🚩",key=f"msf_{idx}",use_container_width=True):
-                                flags.add(idx); st.session_state["ms_flag"]=flags; st.rerun()
-    st.markdown("<br>",unsafe_allow_html=True)
-    _,c2,_=st.columns([1,2,1])
-    with c2:
-        st.markdown('<div class="br">',unsafe_allow_html=True)
-        if st.button("🔄 New Game",use_container_width=True,key="msnew"):
-            d=S("ms_diff","Normal (8×8)")
-            if "6" in d: _ms_init(6,6,7)
-            elif "10" in d: _ms_init(10,10,18)
-            else: _ms_init(8,8,10)
-            st.rerun()
-        st.markdown('</div>',unsafe_allow_html=True)
 
 def _ms_rev(idx,b,rev,flags,rows,cols,mines):
     if idx in rev or idx in flags: return
@@ -1614,17 +1336,27 @@ def _ms_rev(idx,b,rev,flags,rows,cols,mines):
     st.rerun()
 
 # ═══════════════════════════════════════════════════════
-#  NUMBER GUESS
+#  NUMBER GUESS — wider ranges, more coins
 # ═══════════════════════════════════════════════════════
 def page_guess():
     st.markdown("<h1 style='text-align:center;letter-spacing:3px'>🔢 NUMBER GUESS</h1>",unsafe_allow_html=True)
-    st.markdown("<p style='text-align:center;color:#5566aa;font-family:Share Tech Mono,monospace'>Guess the secret number 1–100</p>",unsafe_allow_html=True)
     if "gn" not in st.session_state:
-        st.session_state.update({"gn":random.randint(1,100),"gatt":0,"gover":False,"gfeed":"","g_lo":1,"g_hi":100})
-    gn=S("gn"); att=S("gatt",0); mx=10; feed=S("gfeed",""); over=S("gover")
-    c1,c2=st.columns(2)
+        st.session_state.update({"gn":random.randint(1,1000),"gatt":0,"gover":False,"gfeed":"","g_lo":1,"g_hi":1000,"g_range":1000})
+
+    ranges={"1–100":100,"1–500":500,"1–1000":1000,"1–10000":10000}
+    sel=st.selectbox("Range",list(ranges.keys()),index=2,key="grange_sel")
+    rng=ranges[sel]
+    if rng != S("g_range",1000):
+        st.session_state.update({"gn":random.randint(1,rng),"gatt":0,"gover":False,"gfeed":"","g_lo":1,"g_hi":rng,"g_range":rng})
+
+    mx={"1–100":8,"1–500":10,"1–1000":12,"1–10000":15}[sel]
+    gn=S("gn"); att=S("gatt",0); feed=S("gfeed",""); over=S("gover")
+
+    c1,c2,c3=st.columns(3)
     with c1: st.metric("🎯 Attempts",f"{att}/{mx}")
-    with c2: st.metric("📊 Range",f"{S('g_lo',1)}–{S('g_hi',100)}")
+    with c2: st.metric("📊 Range",f"{S('g_lo',1)}–{S('g_hi',rng)}")
+    with c3: st.metric("💰 Prize",f"{max(50,(mx-att)*30)}")
+
     if over:
         won="Win" in feed
         st.markdown(f"<div class='{'ok' if won else 'err'}' style='font-size:17px;padding:14px'>{feed}</div>",unsafe_allow_html=True)
@@ -1632,20 +1364,22 @@ def page_guess():
         with mc:
             st.markdown('<div class="bG">',unsafe_allow_html=True)
             if st.button("🔄 New Game",use_container_width=True,key="gnnew"):
-                st.session_state.update({"gn":random.randint(1,100),"gatt":0,"gover":False,"gfeed":"","g_lo":1,"g_hi":100}); st.rerun()
+                st.session_state.update({"gn":random.randint(1,rng),"gatt":0,"gover":False,"gfeed":"","g_lo":1,"g_hi":rng})
+                st.rerun()
             st.markdown('</div>',unsafe_allow_html=True)
         return
+
     if feed: st.markdown(f"<div class='inf' style='font-size:15px;padding:12px'>{feed}</div>",unsafe_allow_html=True)
     st.markdown("<br>",unsafe_allow_html=True)
     c1,c2=st.columns([3,1])
-    with c1: guess=st.number_input("Your guess:",1,100,50,key="gin",label_visibility="visible")
+    with c1: guess=st.number_input("Your guess:",1,rng,rng//2,key="gin",label_visibility="visible")
     with c2:
         st.markdown("<br>",unsafe_allow_html=True)
         st.markdown('<div class="bg">',unsafe_allow_html=True)
         if st.button("🎯 Guess",use_container_width=True,key="gok"):
             st.session_state["gatt"]=att+1
             if guess==gn:
-                e=earn(max(10,(mx-att)*15)); give_xp(30)
+                e=earn(max(50,(mx-att)*30)); give_xp(50)
                 st.session_state["gfeed"]=f"🎉 Win! The number was {gn}! +{e} coins"
                 st.session_state["gover"]=True; add_ach("🔢 Guessed it!")
             elif att+1>=mx:
@@ -1656,175 +1390,354 @@ def page_guess():
                 st.session_state["g_lo"]=max(S("g_lo",1),guess+1)
             else:
                 st.session_state["gfeed"]=f"📉 Lower than {guess}!"
-                st.session_state["g_hi"]=min(S("g_hi",100),guess-1)
+                st.session_state["g_hi"]=min(S("g_hi",rng),guess-1)
             st.rerun()
         st.markdown('</div>',unsafe_allow_html=True)
 
 # ═══════════════════════════════════════════════════════
-#  TARGET SHOOTING
+#  PAINT RACE — new game replacing Target Shot
 # ═══════════════════════════════════════════════════════
-def page_targets():
-    st.markdown("<h1 style='text-align:center;letter-spacing:3px'>🎯 TARGET SHOT</h1>",unsafe_allow_html=True)
-    st.markdown("<p style='text-align:center;color:#5566aa;font-family:Share Tech Mono,monospace'>Click targets before they vanish! 15 seconds</p>",unsafe_allow_html=True)
-    if "tgt" not in st.session_state:
-        st.session_state.update({"tgt":"idle","tgt_sc":0,"tgt_t":0,"tgt_pos":None,"tgt_app":0,"tgt_hi":0})
-    state=S("tgt"); score=S("tgt_sc",0); hi=S("tgt_hi",0)
+def page_paintrace():
+    st.markdown("<h1 style='text-align:center;letter-spacing:3px'>🎨 PAINT RACE</h1>",unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center;color:#aabbdd;font-family:Share Tech Mono,monospace;font-size:14px'>Paint tiles by clicking them! Most painted in 20s wins</p>",unsafe_allow_html=True)
+
+    GRID_W, GRID_H = 10, 8
+    TOTAL = GRID_W * GRID_H
+
+    if "pr_state" not in st.session_state:
+        st.session_state.update({"pr_state":"idle","pr_grid":[0]*TOTAL,"pr_t":0,"pr_score":0,"pr_hi":0,"pr_color":0})
+
+    state=S("pr_state"); grid=list(S("pr_grid",[])); hi=S("pr_hi",0)
+    colors=["#ff006e","#00f5ff","#39ff14","#ffd60a","#bf5fff","#ff7c00"]
+    color_names=["Pink","Cyan","Green","Gold","Purple","Orange"]
+
     if state=="idle":
-        st.metric("🏆 Best",hi); st.markdown("<br>",unsafe_allow_html=True)
+        c1,c2=st.columns(2)
+        with c1: st.metric("🏆 Best",hi)
+        with c2: st.metric("🎨 Colors",len(colors))
+        st.markdown("<br>",unsafe_allow_html=True)
         _,mc,_=st.columns([1,2,1])
         with mc:
             st.markdown('<div class="br">',unsafe_allow_html=True)
-            if st.button("🎯 Start!",use_container_width=True,key="tgo"):
-                st.session_state.update({"tgt":"playing","tgt_sc":0,"tgt_t":time.time(),"tgt_pos":(random.randint(0,2),random.randint(0,4)),"tgt_app":time.time()})
+            if st.button("🎨 Start Painting!",use_container_width=True,key="pr_go"):
+                st.session_state.update({"pr_state":"playing","pr_grid":[0]*TOTAL,"pr_t":time.time(),"pr_score":0,"pr_color":random.randint(1,len(colors))})
                 st.rerun()
             st.markdown('</div>',unsafe_allow_html=True)
         return
+
     if state=="playing":
-        el=time.time()-S("tgt_t",0); rem=max(0,15-el)
-        if rem<=0: st.session_state["tgt"]="done"; st.rerun()
-        c1,c2=st.columns(2)
-        with c1: st.metric("🎯 Score",score)
-        with c2: st.markdown(f"<div style='font-family:Orbitron,sans-serif;font-size:28px;color:{'#ff006e' if rem<5 else '#00f5ff'};text-align:center;padding:6px;text-shadow:0 0 14px currentColor'>{rem:.1f}s</div>",unsafe_allow_html=True)
-        st.progress(rem/15)
-        pos=S("tgt_pos"); app_t=S("tgt_app",0)
-        if time.time()-app_t>2.2:
-            pos=(random.randint(0,2),random.randint(0,4)); st.session_state.update({"tgt_pos":pos,"tgt_app":time.time()})
-        if pos:
-            _row,col_i=pos
-            rows_cols=st.columns(5)
-            for ri in range(5):
-                with rows_cols[ri]:
-                    if ri==col_i:
-                        age=time.time()-app_t; op=max(0.2,1-age/2.2)
-                        st.markdown(f"""<div style="height:74px;
-background:radial-gradient(circle,rgba(255,0,110,{op*0.3:.2f}),rgba(255,0,110,{op*0.1:.2f}));
-border:2px solid rgba(255,0,110,{min(op+0.1,0.9):.2f});border-radius:50%;
-display:flex;align-items:center;justify-content:center;font-size:32px;
-box-shadow:0 0 {int(op*24)}px rgba(255,0,110,{op*0.5:.2f});
-animation:tPulse .35s ease-in-out infinite">🎯</div>
-<style>@keyframes tPulse{{0%,100%{{transform:scale(1)}}50%{{transform:scale(1.14)}}}}</style>""",unsafe_allow_html=True)
-                        if st.button("HIT",key=f"tgt_{int(app_t*10)}_{ri}",use_container_width=True):
-                            bonus=max(1,int((2.2-(time.time()-app_t))*6))
-                            st.session_state["tgt_sc"]=score+bonus
-                            st.session_state.update({"tgt_pos":(random.randint(0,2),random.randint(0,4)),"tgt_app":time.time()})
-                            st.rerun()
+        el=time.time()-S("pr_t",0); rem=max(0,20-el)
+        if rem<=0:
+            score=sum(1 for x in grid if x>0)
+            st.session_state.update({"pr_state":"done","pr_score":score})
+            st.rerun()
+
+        cur_col=S("pr_color",1)
+        c1,c2,c3=st.columns(3)
+        with c1: st.metric("🎨 Painted",sum(1 for x in grid if x>0))
+        with c2: st.metric("⬜ Empty",sum(1 for x in grid if x==0))
+        with c3:
+            danger=rem<5
+            st.markdown(f"<div style='font-family:Orbitron,sans-serif;font-size:28px;color:{'#ff006e' if danger else '#ffd60a'};text-align:center;padding:6px;text-shadow:0 0 12px currentColor;font-weight:900'>{rem:.1f}s</div>",unsafe_allow_html=True)
+        st.progress(rem/20)
+
+        # Color picker
+        st.markdown(f"<div style='color:#aabbdd;font-size:13px;margin:8px 0 4px;font-family:Rajdhani,sans-serif'>🎨 Current color: <b style='color:{colors[cur_col-1]}'>{color_names[cur_col-1]}</b></div>",unsafe_allow_html=True)
+        ccols=st.columns(len(colors))
+        for ci,cc in enumerate(colors):
+            with ccols[ci]:
+                border="3px solid white" if ci+1==cur_col else f"1px solid {cc}55"
+                st.markdown(f"""<div style="height:28px;background:{cc};border-radius:6px;border:{border};cursor:pointer;margin-bottom:4px"></div>""",unsafe_allow_html=True)
+                if st.button(f"●",key=f"prc_{ci}",use_container_width=True):
+                    st.session_state["pr_color"]=ci+1; st.rerun()
+
+        # Grid
+        st.markdown("<br>",unsafe_allow_html=True)
+        for r in range(GRID_H):
+            gcols=st.columns(GRID_W)
+            for c in range(GRID_W):
+                idx=r*GRID_W+c
+                with gcols[c]:
+                    cv=grid[idx]
+                    if cv>0:
+                        bc=colors[cv-1]
+                        st.markdown(f"""<div style="height:38px;background:{bc};border-radius:6px;
+border:1px solid {bc}aa;box-shadow:0 0 8px {bc}66;margin-bottom:2px"></div>""",unsafe_allow_html=True)
                     else:
-                        st.markdown("""<div style="height:74px;background:rgba(255,255,255,.01);
-border:1px solid rgba(255,255,255,.03);border-radius:50%"></div>""",unsafe_allow_html=True)
-        time.sleep(0.1); st.rerun()
+                        st.markdown("""<style>div.prCell .stButton>button{height:38px!important;min-height:38px!important;
+background:rgba(255,255,255,.04)!important;border:1px solid rgba(255,255,255,.1)!important;
+border-radius:6px!important;font-size:0!important;transition:all .1s!important;margin-bottom:2px!important;}
+div.prCell .stButton>button:hover{background:rgba(255,255,255,.15)!important;transform:scale(1.08)!important;}</style>""",unsafe_allow_html=True)
+                        st.markdown('<div class="prCell">',unsafe_allow_html=True)
+                        if st.button("·",key=f"pr_{idx}_{sum(1 for x in grid if x>0)}",use_container_width=True):
+                            grid[idx]=cur_col; st.session_state["pr_grid"]=grid; st.rerun()
+                        st.markdown('</div>',unsafe_allow_html=True)
+        time.sleep(0.08); st.rerun()
+
     if state=="done":
-        e=earn(score*3); give_xp(score)
-        if score>hi: st.session_state["tgt_hi"]=score; add_ach(f"🎯 Target Record: {score}!")
-        st.markdown(f"<div class='ok' style='font-size:17px;padding:16px'>🎉 {score} targets hit! +{e} coins</div>",unsafe_allow_html=True)
+        score=S("pr_score",0); e=earn(score*5); give_xp(score*2)
+        if score>hi: st.session_state["pr_hi"]=score; add_ach(f"🎨 Paint Record: {score}!")
+        st.markdown(f"<div class='ok' style='font-size:17px;padding:16px'>🎉 Painted {score}/{TOTAL} tiles! +{e} coins</div>",unsafe_allow_html=True)
+
+        # Show final grid
+        for r in range(GRID_H):
+            gcols=st.columns(GRID_W)
+            for c2 in range(GRID_W):
+                idx=r*GRID_W+c2
+                with gcols[c2]:
+                    cv=grid[idx]
+                    bc=colors[cv-1] if cv>0 else "#111"
+                    st.markdown(f"""<div style="height:30px;background:{bc};border-radius:4px;margin-bottom:2px"></div>""",unsafe_allow_html=True)
+
         st.markdown("<br>",unsafe_allow_html=True)
         _,mc,_=st.columns([1,2,1])
         with mc:
             st.markdown('<div class="bG">',unsafe_allow_html=True)
-            if st.button("🔄 Play Again",use_container_width=True,key="tga"):
-                st.session_state.update({"tgt":"idle","tgt_sc":0}); st.rerun()
+            if st.button("🔄 Play Again",use_container_width=True,key="pr_again"):
+                st.session_state.update({"pr_state":"idle","pr_grid":[0]*TOTAL}); st.rerun()
             st.markdown('</div>',unsafe_allow_html=True)
 
 # ═══════════════════════════════════════════════════════
-#  WORD GUESS (Wordle-like)
+#  WORD GUESS — real Wordle keyboard input, fixed coloring
 # ═══════════════════════════════════════════════════════
-WORDS=["PYTHON","STREAM","LASER","NEON","PIXEL","BLAST","CYBER","QUEST","STORM","SWORD",
-       "FLAME","GHOST","QUEEN","BRAVE","CRISP","SHINY","PRIME","VIBES","ULTRA","LUNAR"]
+WORDS=["PYTHON","LASER","PIXEL","BLAST","CYBER","QUEST","STORM","SWORD",
+       "FLAME","GHOST","QUEEN","BRAVE","CRISP","SHINY","PRIME","LUNAR",
+       "BLOCK","CLOCK","DREAM","FROST","GRAPE","HONEY","IVORY","JOLLY",
+       "KNIFE","LEMON","MAGIC","NINJA","OCEAN","PEACE","QUICK","RAZOR",
+       "TIGER","ULTRA","VIVID","WATER","XENON","YACHT","ZEBRA","SHINE"]
+
+def _wordle_colors(guess, word):
+    """Correct Wordle coloring — handles duplicate letters properly."""
+    result = ['gray'] * len(guess)
+    word_remaining = list(word)
+    # First pass: mark greens
+    for i, ch in enumerate(guess):
+        if i < len(word) and ch == word[i]:
+            result[i] = 'green'
+            word_remaining[i] = None
+    # Second pass: mark yellows
+    for i, ch in enumerate(guess):
+        if result[i] == 'green':
+            continue
+        if ch in word_remaining:
+            result[i] = 'yellow'
+            word_remaining[word_remaining.index(ch)] = None
+    return result
 
 def page_wordgame():
     st.markdown("<h1 style='text-align:center;letter-spacing:3px'>🔤 WORD GUESS</h1>",unsafe_allow_html=True)
-    st.markdown("<p style='text-align:center;color:#5566aa;font-family:Share Tech Mono,monospace'>Guess the word — 6 tries</p>",unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center;color:#aabbdd;font-family:Share Tech Mono,monospace;font-size:14px'>Type your 5-letter guess · Enter to submit · Backspace to delete</p>",unsafe_allow_html=True)
+
     if "ww" not in st.session_state:
-        w=random.choice(WORDS); st.session_state.update({"ww":w,"wg":[],"wo":False,"wm":""})
-    word=S("ww",""); guesses=list(S("wg",[])); over=S("wo"); msg=S("wm","")
+        w=random.choice([x for x in WORDS if len(x)==5])
+        st.session_state.update({"ww":w,"wg":[],"wo":False,"wm":"","wcur":""})
+    word=S("ww",""); guesses=list(S("wg",[])); over=S("wo"); msg=S("wm",""); cur=S("wcur","")
+
     c1,c2=st.columns(2)
-    with c1: st.metric("📝 Length",len(word))
+    with c1: st.metric("📝 Word Length",len(word))
     with c2: st.metric("🎯 Tries",f"{len(guesses)}/6")
 
+    # Color map for keyboard
+    letter_colors={}
+    for g in guesses:
+        cols_w=_wordle_colors(g, word)
+        for i,ch in enumerate(g):
+            prev=letter_colors.get(ch,'unused')
+            nc=cols_w[i]
+            if nc=='green': letter_colors[ch]='green'
+            elif nc=='yellow' and prev!='green': letter_colors[ch]='yellow'
+            elif prev not in ('green','yellow'): letter_colors[ch]='gray'
+
+    # Board
     _,mc,_=st.columns([1,3,1])
     with mc:
-        for g in guesses:
+        for gi in range(6):
             row_html=""
-            for i,ch in enumerate(g):
-                if i<len(word):
-                    if ch==word[i]:
-                        bg="linear-gradient(135deg,rgba(57,255,20,.15),rgba(57,255,20,.06))"; bd="rgba(57,255,20,.6)"; col="#39ff14"; sh="0 0 16px rgba(57,255,20,.4)"
-                    elif ch in word:
-                        bg="linear-gradient(135deg,rgba(255,214,10,.12),rgba(255,214,10,.04))"; bd="rgba(255,214,10,.5)"; col="#ffd60a"; sh="0 0 12px rgba(255,214,10,.3)"
+            if gi < len(guesses):
+                g=guesses[gi]; cols_w=_wordle_colors(g, word)
+                for i,ch in enumerate(g):
+                    nc=cols_w[i]
+                    if nc=='green':
+                        bg="linear-gradient(135deg,rgba(57,255,20,.2),rgba(57,255,20,.08))"; bd="rgba(57,255,20,.7)"; col2="#39ff14"
+                    elif nc=='yellow':
+                        bg="linear-gradient(135deg,rgba(255,214,10,.2),rgba(255,214,10,.08))"; bd="rgba(255,214,10,.6)"; col2="#ffd60a"
                     else:
-                        bg="rgba(255,255,255,.03)"; bd="rgba(255,255,255,.08)"; col="#5566aa"; sh="none"
-                else:
-                    bg="rgba(255,255,255,.01)"; bd="rgba(255,255,255,.04)"; col="#333"; sh="none"
-                row_html+=f"""<div style="width:50px;height:52px;background:{bg};border:2px solid {bd};
+                        bg="rgba(255,255,255,.04)"; bd="rgba(255,255,255,.12)"; col2="#667799"
+                    row_html+=f"""<div style="width:52px;height:54px;background:{bg};border:2px solid {bd};
 border-radius:9px;display:flex;align-items:center;justify-content:center;
-font-size:20px;font-weight:900;color:{col};font-family:'Orbitron',sans-serif;
-box-shadow:{sh};letter-spacing:0">{ch}</div>"""
-            st.markdown(f"<div style='display:flex;gap:7px;justify-content:center;margin-bottom:7px'>{row_html}</div>",unsafe_allow_html=True)
+font-size:22px;font-weight:900;color:{col2};font-family:'Orbitron',sans-serif;
+animation:flipIn .4s ease {i*0.1:.1f}s both">{ch}</div>"""
+            elif gi == len(guesses) and not over:
+                # Current input row
+                for i in range(5):
+                    ch = cur[i] if i < len(cur) else ""
+                    active = i == len(cur) and len(cur) < 5
+                    bd = "rgba(0,245,255,.7)" if active else ("rgba(0,245,255,.4)" if ch else "rgba(255,255,255,.12)")
+                    row_html+=f"""<div style="width:52px;height:54px;background:rgba(0,245,255,.05);border:2px solid {bd};
+border-radius:9px;display:flex;align-items:center;justify-content:center;
+font-size:22px;font-weight:900;color:#e8ecff;font-family:'Orbitron',sans-serif;
+{'animation:cursorBlink .8s ease-in-out infinite;' if active else ''}
+transition:border-color .1s">{ch}</div>"""
+            else:
+                for i in range(5):
+                    row_html+="""<div style="width:52px;height:54px;background:rgba(255,255,255,.02);
+border:1px solid rgba(255,255,255,.06);border-radius:9px"></div>"""
+            st.markdown(f"""<div style='display:flex;gap:7px;justify-content:center;margin-bottom:7px'>{row_html}</div>""",unsafe_allow_html=True)
 
-        for _ in range(6-len(guesses)):
-            empty="".join(f"""<div style="width:50px;height:52px;background:rgba(255,255,255,.02);
-border:1px solid rgba(255,255,255,.07);border-radius:9px"></div>""" for _ in range(len(word)))
-            st.markdown(f"<div style='display:flex;gap:7px;justify-content:center;margin-bottom:7px'>{empty}</div>",unsafe_allow_html=True)
+    st.markdown("""<style>
+@keyframes flipIn{0%{transform:scaleY(0);opacity:0}50%{transform:scaleY(1.1)}100%{transform:scaleY(1);opacity:1}}
+@keyframes cursorBlink{0%,100%{border-color:rgba(0,245,255,.7)}50%{border-color:rgba(0,245,255,.2)}}
+</style>""",unsafe_allow_html=True)
+
+    # On-screen keyboard
+    rows_kb=[["Q","W","E","R","T","Y","U","I","O","P"],
+             ["A","S","D","F","G","H","J","K","L"],
+             ["ENTER","Z","X","C","V","B","N","M","⌫"]]
+    st.markdown("<br>",unsafe_allow_html=True)
+    color_map={'green':'rgba(57,255,20,.4)','yellow':'rgba(255,214,10,.35)','gray':'rgba(100,100,120,.4)','unused':'rgba(0,245,255,.1)'}
+    border_map={'green':'rgba(57,255,20,.8)','yellow':'rgba(255,214,10,.7)','gray':'rgba(100,100,120,.4)','unused':'rgba(0,245,255,.3)'}
+    text_map={'green':'#39ff14','yellow':'#ffd60a','gray':'#667799','unused':'#aabbdd'}
+
+    if not over:
+        for kb_row in rows_kb:
+            kb_cols=st.columns(len(kb_row))
+            for ki,key in enumerate(kb_row):
+                with kb_cols[ki]:
+                    lc=letter_colors.get(key,'unused')
+                    bg=color_map[lc]; bd=border_map[lc]; tc=text_map[lc]
+                    is_wide=key in ("ENTER","⌫")
+                    st.markdown(f"""<style>
+div.kb_{ki}_{ord(key[0])} .stButton>button{{
+height:44px!important;background:{bg}!important;border:1px solid {bd}!important;
+border-radius:7px!important;color:{tc}!important;font-weight:700!important;
+font-family:'Orbitron',sans-serif!important;font-size:{'10px' if is_wide else '13px'}!important;
+padding:0!important;letter-spacing:0!important;transition:all .1s!important;}}
+div.kb_{ki}_{ord(key[0])} .stButton>button:hover{{background:{bg.replace('rgba','rgba').replace(', 0.',', 0.6')}!important;transform:scale(1.05)!important;}}
+</style>""",unsafe_allow_html=True)
+                    st.markdown(f'<div class="kb_{ki}_{ord(key[0])}">',unsafe_allow_html=True)
+                    if st.button(key,key=f"kb_{key}_{len(guesses)}_{len(cur)}",use_container_width=True):
+                        if key=="⌫":
+                            if cur: st.session_state["wcur"]=cur[:-1]; st.rerun()
+                        elif key=="ENTER":
+                            if len(cur)==5:
+                                guesses.append(cur); st.session_state["wg"]=guesses; st.session_state["wcur"]=""
+                                if cur==word:
+                                    e=earn(max(20,(6-len(guesses)+1)*40)); give_xp(50)
+                                    st.session_state["wm"]=f"🎉 Win! +{e} coins"; st.session_state["wo"]=True; add_ach("🔤 Word Master!")
+                                elif len(guesses)>=6:
+                                    st.session_state["wm"]=f"😔 The word was: {word}"; st.session_state["wo"]=True
+                                st.rerun()
+                            else:
+                                st.session_state["wm"]=f"⚠️ Need 5 letters!"
+                                st.rerun()
+                        elif len(cur)<5:
+                            st.session_state["wcur"]=cur+key; st.rerun()
+                    st.markdown('</div>',unsafe_allow_html=True)
 
     st.markdown("<br>",unsafe_allow_html=True)
     if msg:
-        cls="ok" if "Win" in msg else ("err" if "word was" in msg else "inf")
-        st.markdown(f"<div class='{cls}' style='padding:11px'>{msg}</div>",unsafe_allow_html=True)
-    st.markdown("<br>",unsafe_allow_html=True)
+        cls="ok" if "Win" in msg else ("err" if "word was" in msg else "warn")
+        st.markdown(f"<div class='{cls}' style='padding:11px;font-size:15px'>{msg}</div>",unsafe_allow_html=True)
+
     if over:
-        _,mc,_=st.columns([1,2,1])
-        with mc:
+        st.markdown("<br>",unsafe_allow_html=True)
+        _,mc2,_=st.columns([1,2,1])
+        with mc2:
             st.markdown('<div class="bG">',unsafe_allow_html=True)
             if st.button("🔄 New Word",use_container_width=True,key="wwnew"):
-                w=random.choice(WORDS); st.session_state.update({"ww":w,"wg":[],"wo":False,"wm":""}); st.rerun()
+                w=random.choice([x for x in WORDS if len(x)==5])
+                st.session_state.update({"ww":w,"wg":[],"wo":False,"wm":"","wcur":""}); st.rerun()
             st.markdown('</div>',unsafe_allow_html=True)
-        return
-    c1,c2=st.columns([3,1])
-    with c1: inp=st.text_input("Enter guess:",max_chars=len(word),key="wwin",label_visibility="collapsed").upper().strip()
-    with c2:
-        st.markdown('<div class="bg">',unsafe_allow_html=True)
-        if st.button("🎯 Guess",use_container_width=True,key="wwok"):
-            if len(inp)!=len(word): st.session_state["wm"]=f"⚠️ Must be {len(word)} letters!"
-            elif inp in guesses: st.session_state["wm"]="⚠️ Already guessed!"
-            else:
-                guesses.append(inp); st.session_state["wg"]=guesses
-                if inp==word:
-                    e=earn(max(20,(6-len(guesses)+1)*25)); give_xp(40)
-                    st.session_state["wm"]=f"🎉 Win! +{e} coins"; st.session_state["wo"]=True; add_ach("🔤 Word Master!")
-                elif len(guesses)>=6:
-                    st.session_state["wm"]=f"😔 The word was: {word}"; st.session_state["wo"]=True
-                else: st.session_state["wm"]="🟩 right spot  🟨 wrong spot  ⬜ not in word"
-            st.rerun()
-        st.markdown('</div>',unsafe_allow_html=True)
-    st.markdown("<div style='color:#5566aa;font-size:11px;text-align:center;margin-top:8px;font-family:Share Tech Mono,monospace'>🟩 Correct position | 🟨 Wrong position | ⬜ Not in word</div>",unsafe_allow_html=True)
 
 # ═══════════════════════════════════════════════════════
-#  PONG 2P
+#  PONG 2P — fixed angles, variable speed
 # ═══════════════════════════════════════════════════════
 def page_pong2p():
     st.markdown("<h1 style='text-align:center;letter-spacing:3px'>🏓 PONG — 2 PLAYERS</h1>",unsafe_allow_html=True)
-    st.markdown("<div class='inf'>Player 1: W/S  ·  Player 2: ↑/↓  ·  First to 7 wins!</div>",unsafe_allow_html=True)
+    st.markdown("<div class='inf' style='font-size:15px'>Player 1: W/S  ·  Player 2: ↑/↓  ·  First to 7 wins!</div>",unsafe_allow_html=True)
     st.markdown("<br>",unsafe_allow_html=True)
     _,col,_=st.columns([1,10,1])
     with col:
         components.html("""<!DOCTYPE html><html><head><meta charset="UTF-8">
-<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#04040f;display:flex;flex-direction:column;align-items:center;padding:10px;user-select:none}@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap');canvas{border:2px solid rgba(0,245,255,.2);border-radius:12px;box-shadow:0 0 40px rgba(0,245,255,.08);display:block}.ov{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:linear-gradient(145deg,rgba(4,4,20,.97),rgba(8,8,28,.97));border:1px solid rgba(0,245,255,.4);border-radius:16px;padding:24px 32px;text-align:center;backdrop-filter:blur(20px)}.ov h2{color:#00f5ff;font-family:'Orbitron',sans-serif;font-size:18px;margin-bottom:8px;text-shadow:0 0 16px rgba(0,245,255,.7)}.ov p{color:#8899bb;font-size:12px;margin-bottom:14px;font-family:monospace}.ov button{background:linear-gradient(135deg,rgba(0,245,255,.2),rgba(0,245,255,.06));color:#00f5ff;border:1px solid rgba(0,245,255,.5);padding:9px 22px;border-radius:8px;cursor:pointer;font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700}.wrap{position:relative}</style></head><body>
-<div class="wrap"><canvas id="c" width="560" height="340"></canvas><div class="ov" id="ov"><h2>🏓 2-PLAYER PONG</h2><p>P1: W/S | P2: ↑/↓<br>First to 7 wins!</p><button onclick="start()">▶ PLAY</button></div></div>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#04040f;display:flex;flex-direction:column;align-items:center;padding:10px;user-select:none;font-family:'Share Tech Mono',monospace}
+canvas{border:2px solid rgba(0,245,255,.2);border-radius:12px;box-shadow:0 0 40px rgba(0,245,255,.08);display:block}
+.ov{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:linear-gradient(145deg,rgba(4,4,20,.97),rgba(8,8,28,.97));border:1px solid rgba(0,245,255,.5);border-radius:16px;padding:28px 36px;text-align:center;backdrop-filter:blur(20px)}
+.ov h2{color:#00f5ff;font-family:'Orbitron',sans-serif;font-size:20px;margin-bottom:10px;text-shadow:0 0 16px rgba(0,245,255,.8)}
+.ov p{color:#aabbdd;font-size:13px;margin-bottom:16px}
+.ov button{background:linear-gradient(135deg,rgba(0,245,255,.2),rgba(0,245,255,.06));color:#00f5ff;border:1px solid rgba(0,245,255,.5);padding:10px 24px;border-radius:8px;cursor:pointer;font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700}
+.wrap{position:relative}</style></head><body>
+<div class="wrap"><canvas id="c" width="560" height="340"></canvas>
+<div class="ov" id="ov"><h2>🏓 2-PLAYER PONG</h2><p>P1: W/S | P2: ↑/↓<br>First to 7 wins!</p><button onclick="start()">▶ PLAY</button></div></div>
 <script>
-const W=560,H=340,PW=11,PH=70,BR=7;const cv=document.getElementById('c'),ctx=cv.getContext('2d');
-let p1y,p2y,bx,by,vx,vy,s1,s2,run,raf,keys={},trail=[],parts=[];
-function start(){document.getElementById('ov').style.display='none';p1y=H/2-PH/2;p2y=H/2-PH/2;bx=W/2;by=H/2;let a=(Math.random()*.7+.15)*Math.PI*(Math.random()<.5?1:-1);vx=Math.cos(a)*3.8;vy=Math.sin(a)*3.8;s1=s2=0;run=true;trail=[];parts=[];if(raf)cancelAnimationFrame(raf);loop();}
-document.addEventListener('keydown',e=>{keys[e.code]=true;if(['KeyW','KeyS','ArrowUp','ArrowDown'].includes(e.code))e.preventDefault();});document.addEventListener('keyup',e=>keys[e.code]=false);
+var W=560,H=340,PW=11,PH=70,BR=7,BASE=4.0;
+var cv=document.getElementById('c'),ctx=cv.getContext('2d');
+var p1y,p2y,bx,by,vx,vy,s1,s2,run,raf,keys={},trail=[],parts6=[],hits=0;
+function start(){
+  document.getElementById('ov').style.display='none';
+  p1y=H/2-PH/2;p2y=H/2-PH/2;bx=W/2;by=H/2;hits=0;
+  var a=(Math.random()*.5+.25)*Math.PI*(Math.random()<.5?1:-1);
+  vx=Math.cos(a)*BASE;vy=Math.sin(a)*(BASE*.65);
+  s1=s2=0;run=true;trail=[];parts6=[];
+  if(raf)cancelAnimationFrame(raf);loop();
+}
+document.addEventListener('keydown',function(e){keys[e.code]=true;if(['KeyW','KeyS','ArrowUp','ArrowDown'].includes(e.code))e.preventDefault();});
+document.addEventListener('keyup',function(e){keys[e.code]=false;});
 function loop(){if(!run)return;update();draw();raf=requestAnimationFrame(loop);}
-function update(){if(keys['KeyW'])p1y=Math.max(0,p1y-5.5);if(keys['KeyS'])p1y=Math.min(H-PH,p1y+5.5);if(keys['ArrowUp'])p2y=Math.max(0,p2y-5.5);if(keys['ArrowDown'])p2y=Math.min(H-PH,p2y+5.5);bx+=vx;by+=vy;if(by<=BR||by>=H-BR){vy=-vy;spark(bx,by,'#ffd60a');}if(bx<=17+PW&&by>=p1y&&by<=p1y+PH){vx=Math.abs(vx)*1.03;vy+=(by-(p1y+PH/2))*.09;spark(bx,by,'#00f5ff');}if(bx>=W-17-PW&&by>=p2y&&by<=p2y+PH){vx=-Math.abs(vx)*1.03;vy+=(by-(p2y+PH/2))*.09;spark(bx,by,'#ff006e');}trail.unshift({x:bx,y:by,l:12});if(trail.length>14)trail.pop();trail.forEach(t=>t.l--);trail=trail.filter(t=>t.l>0);parts=parts.filter(p=>p.l>0);parts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.l--;p.vx*=.92;});if(bx<0){s2++;if(s2>=7){end('Player 2 Wins! 🎉');return;}reset();}if(bx>W){s1++;if(s1>=7){end('Player 1 Wins! 🎉');return;}reset();}}
-function spark(x,y,c){for(let i=0;i<8;i++)parts.push({x,y,vx:(Math.random()-.5)*6,vy:(Math.random()-.5)*6,l:18,c});}
-function reset(){bx=W/2;by=H/2;let a=(Math.random()*.7+.15)*Math.PI*(Math.random()<.5?1:-1);vx=Math.cos(a)*(3.8+Math.max(s1,s2)*.18);vy=Math.sin(a)*3.8;trail=[];}
+function update(){
+  if(keys['KeyW'])p1y=Math.max(0,p1y-5.5);
+  if(keys['KeyS'])p1y=Math.min(H-PH,p1y+5.5);
+  if(keys['ArrowUp'])p2y=Math.max(0,p2y-5.5);
+  if(keys['ArrowDown'])p2y=Math.min(H-PH,p2y+5.5);
+  bx+=vx;by+=vy;
+  if(by<=BR){by=BR;vy=Math.abs(vy);spark(bx,by,'#ffd60a');}
+  if(by>=H-BR){by=H-BR;vy=-Math.abs(vy);spark(bx,by,'#ffd60a');}
+  if(vx<0&&bx<=17+PW&&bx>=11&&by>=p1y&&by<=p1y+PH){
+    hits++;var spd=BASE+hits*0.15;
+    var rel=(by-(p1y+PH/2))/(PH/2);
+    var ang=rel*0.8;
+    vx=Math.abs(Math.cos(ang)*spd);vy=Math.sin(ang)*spd;
+    bx=17+PW+1;spark(bx,by,'#00f5ff');
+  }
+  if(vx>0&&bx>=W-17-PW&&bx<=W-11&&by>=p2y&&by<=p2y+PH){
+    hits++;var spd2=BASE+hits*0.15;
+    var rel2=(by-(p2y+PH/2))/(PH/2);
+    var ang2=rel2*0.8;
+    vx=-Math.abs(Math.cos(ang2)*spd2);vy=Math.sin(ang2)*spd2;
+    bx=W-17-PW-1;spark(bx,by,'#ff006e');
+  }
+  trail.unshift({x:bx,y:by,l:12});if(trail.length>14)trail.pop();
+  trail.forEach(function(t){t.l--;});trail=trail.filter(function(t){return t.l>0;});
+  parts6=parts6.filter(function(p){return p.l>0;});
+  parts6.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.l--;p.vx*=.92;});
+  if(bx<0){s2++;hits=0;if(s2>=7){end('Player 2 Wins! 🎉');return;}reset();}
+  if(bx>W){s1++;hits=0;if(s1>=7){end('Player 1 Wins! 🎉');return;}reset();}
+}
+function spark(x,y,c){for(var i=0;i<8;i++)parts6.push({x:x,y:y,vx:(Math.random()-.5)*6,vy:(Math.random()-.5)*6,l:18,c:c});}
+function reset(){bx=W/2;by=H/2;hits=0;var a=(Math.random()*.5+.25)*Math.PI*(Math.random()<.5?1:-1);vx=Math.cos(a)*BASE;vy=Math.sin(a)*(BASE*.65);trail=[];}
 function end(msg){run=false;cancelAnimationFrame(raf);document.getElementById('ov').querySelector('h2').textContent=msg;document.getElementById('ov').querySelector('p').textContent='P1: '+s1+' | P2: '+s2;document.getElementById('ov').style.display='block';}
-function draw(){ctx.fillStyle='#04040f';ctx.fillRect(0,0,W,H);ctx.setLineDash([8,8]);ctx.strokeStyle='rgba(255,255,255,.05)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(W/2,0);ctx.lineTo(W/2,H);ctx.stroke();ctx.setLineDash([]);ctx.font='bold 30px Orbitron,monospace';ctx.textAlign='center';ctx.fillStyle='rgba(0,245,255,.9)';ctx.shadowBlur=14;ctx.shadowColor='rgba(0,245,255,.6)';ctx.fillText(s1,W/2-75,40);ctx.fillStyle='rgba(255,0,110,.9)';ctx.shadowColor='rgba(255,0,110,.6)';ctx.fillText(s2,W/2+75,40);ctx.shadowBlur=0;trail.forEach((t,i)=>{ctx.globalAlpha=t.l/12*.45;ctx.fillStyle='#ffd60a';ctx.beginPath();ctx.arc(t.x,t.y,BR*t.l/12,0,Math.PI*2);ctx.fill();});ctx.globalAlpha=1;parts.forEach(p=>{ctx.globalAlpha=p.l/18;ctx.fillStyle=p.c;ctx.shadowBlur=4;ctx.shadowColor=p.c;ctx.beginPath();ctx.arc(p.x,p.y,2.5,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;});ctx.globalAlpha=1;[{x:15,y:p1y,c:'#00f5ff'},{x:W-15-PW,y:p2y,c:'#ff006e'}].forEach(p=>{let g=ctx.createLinearGradient(p.x,0,p.x+PW,0);g.addColorStop(0,p.c+'88');g.addColorStop(.5,p.c);g.addColorStop(1,p.c+'88');ctx.fillStyle=g;ctx.shadowBlur=16;ctx.shadowColor=p.c;ctx.beginPath();ctx.roundRect(p.x,p.y,PW,PH,5);ctx.fill();ctx.shadowBlur=0;});let bg2=ctx.createRadialGradient(bx-2,by-2,1,bx,by,BR);bg2.addColorStop(0,'#fff');bg2.addColorStop(.5,'#ffd60a');bg2.addColorStop(1,'#ff8800');ctx.fillStyle=bg2;ctx.shadowBlur=20;ctx.shadowColor='rgba(255,214,10,.9)';ctx.beginPath();ctx.arc(bx,by,BR,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;}
+function draw(){
+  ctx.fillStyle='#04040f';ctx.fillRect(0,0,W,H);
+  ctx.setLineDash([8,8]);ctx.strokeStyle='rgba(255,255,255,.05)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(W/2,0);ctx.lineTo(W/2,H);ctx.stroke();ctx.setLineDash([]);
+  ctx.font='bold 32px Orbitron,monospace';ctx.textAlign='center';
+  ctx.fillStyle='rgba(0,245,255,.95)';ctx.shadowBlur=14;ctx.shadowColor='rgba(0,245,255,.6)';ctx.fillText(s1,W/2-80,42);
+  ctx.fillStyle='rgba(255,0,110,.95)';ctx.shadowColor='rgba(255,0,110,.6)';ctx.fillText(s2,W/2+80,42);ctx.shadowBlur=0;
+  ctx.font='10px monospace';ctx.fillStyle='rgba(255,214,10,.5)';ctx.textAlign='center';
+  ctx.fillText('speed: '+(BASE+hits*0.15).toFixed(1),W/2,H-8);
+  trail.forEach(function(t){ctx.globalAlpha=t.l/12*.45;ctx.fillStyle='#ffd60a';ctx.beginPath();ctx.arc(t.x,t.y,BR*t.l/12,0,Math.PI*2);ctx.fill();});ctx.globalAlpha=1;
+  parts6.forEach(function(p){ctx.globalAlpha=p.l/18;ctx.fillStyle=p.c;ctx.shadowBlur=4;ctx.shadowColor=p.c;ctx.beginPath();ctx.arc(p.x,p.y,2.5,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;});ctx.globalAlpha=1;
+  [{x:15,y:p1y,c:'#00f5ff'},{x:W-15-PW,y:p2y,c:'#ff006e'}].forEach(function(p){
+    var g=ctx.createLinearGradient(p.x,0,p.x+PW,0);g.addColorStop(0,p.c+'88');g.addColorStop(.5,p.c);g.addColorStop(1,p.c+'88');
+    ctx.fillStyle=g;ctx.shadowBlur=16;ctx.shadowColor=p.c;ctx.beginPath();ctx.roundRect(p.x,p.y,PW,PH,5);ctx.fill();ctx.shadowBlur=0;
+  });
+  var bg3=ctx.createRadialGradient(bx-2,by-2,1,bx,by,BR);bg3.addColorStop(0,'#fff');bg3.addColorStop(.5,'#ffd60a');bg3.addColorStop(1,'#ff8800');
+  ctx.fillStyle=bg3;ctx.shadowBlur=20;ctx.shadowColor='rgba(255,214,10,.9)';ctx.beginPath();ctx.arc(bx,by,BR,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+}
 ctx.fillStyle='#04040f';ctx.fillRect(0,0,W,H);
 </script></body></html>""", height=390, scrolling=False)
 
 # ═══════════════════════════════════════════════════════
-#  TIC-TAC-TOE 2P
+#  TIC-TAC-TOE 2P — consistent cell sizes
 # ═══════════════════════════════════════════════════════
 def page_ttt2p():
     st.markdown("<h1 style='text-align:center;letter-spacing:3px'>❌ TIC-TAC-TOE — 2P</h1>",unsafe_allow_html=True)
@@ -1835,8 +1748,8 @@ def page_ttt2p():
     with c1: st.metric("❌ Player 1",wins.get("X",0))
     with c2: st.metric("⭕ Player 2",wins.get("O",0))
     with c3:
-        col=("#00f5ff" if turn=="X" else "#ff006e")
-        st.markdown(f"<div style='text-align:center;font-family:Orbitron,sans-serif;font-size:18px;color:{col};padding:10px;text-shadow:0 0 12px {col}'>{'❌ P1' if turn=='X' else '⭕ P2'}</div>",unsafe_allow_html=True)
+        col2="#00f5ff" if turn=="X" else "#ff006e"
+        st.markdown(f"<div style='text-align:center;font-family:Orbitron,sans-serif;font-size:18px;font-weight:700;color:{col2};padding:10px;text-shadow:0 0 12px {col2}'>{'❌ Player 1' if turn=='X' else '⭕ Player 2'}</div>",unsafe_allow_html=True)
     if msg:
         cls="ok" if "Wins" in msg else "inf"
         st.markdown(f"<div class='{cls}' style='font-size:15px;padding:12px;margin-bottom:12px'>{msg}</div>",unsafe_allow_html=True)
@@ -1849,12 +1762,12 @@ def page_ttt2p():
                 with rc[ci]:
                     cell=b[idx]
                     if cell=="X":
-                        st.markdown("""<div style="height:86px;background:linear-gradient(145deg,rgba(0,245,255,.1),rgba(0,245,255,.03));border:2px solid rgba(0,245,255,.55);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:42px;font-weight:900;color:#00f5ff;text-shadow:0 0 20px rgba(0,245,255,.9);box-shadow:0 0 18px rgba(0,245,255,.1);animation:xPop .25s cubic-bezier(.34,1.56,.64,1)">✕</div>""",unsafe_allow_html=True)
+                        st.markdown(_ttt_cell_x(), unsafe_allow_html=True)
                     elif cell=="O":
-                        st.markdown("""<div style="height:86px;background:linear-gradient(145deg,rgba(255,0,110,.1),rgba(255,0,110,.03));border:2px solid rgba(255,0,110,.55);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:42px;font-weight:900;color:#ff006e;text-shadow:0 0 20px rgba(255,0,110,.9);box-shadow:0 0 18px rgba(255,0,110,.1);animation:oPop .25s cubic-bezier(.34,1.56,.64,1)">○</div>""",unsafe_allow_html=True)
+                        st.markdown(_ttt_cell_o(), unsafe_allow_html=True)
                     elif not over:
-                        st.markdown("""<style>div.tttCell2 .stButton>button{height:86px!important;min-height:86px!important;background:linear-gradient(145deg,rgba(191,95,255,.05),rgba(191,95,255,.01))!important;border:1px solid rgba(191,95,255,.18)!important;border-radius:14px!important;font-size:0!important;transition:all .18s!important;}div.tttCell2 .stButton>button:hover{background:rgba(191,95,255,.12)!important;border-color:rgba(191,95,255,.5)!important;box-shadow:0 0 18px rgba(191,95,255,.18)!important;transform:scale(1.04)!important;}</style>""",unsafe_allow_html=True)
-                        st.markdown('<div class="tttCell2">',unsafe_allow_html=True)
+                        st.markdown(CELL_STYLE, unsafe_allow_html=True)
+                        st.markdown('<div class="tttCell">', unsafe_allow_html=True)
                         if st.button(" ",key=f"tt2_{idx}_{sum(1 for x in b if x)}",use_container_width=True):
                             b[idx]=turn; w=_tw(b)
                             if w:
@@ -1864,12 +1777,12 @@ def page_ttt2p():
                             elif ""not in b: st.session_state.update({"ts2":"🤝 Draw!","to2":True,"tb2":b})
                             else: st.session_state.update({"turn2":"O" if turn=="X" else "X","tb2":b})
                             st.rerun()
-                        st.markdown('</div>',unsafe_allow_html=True)
+                        st.markdown('</div>', unsafe_allow_html=True)
                     else:
-                        st.markdown("""<div style="height:86px;background:rgba(255,255,255,.01);border:1px solid rgba(255,255,255,.04);border-radius:14px"></div>""",unsafe_allow_html=True)
+                        st.markdown(_ttt_cell_empty_over(), unsafe_allow_html=True)
     st.markdown("<br>",unsafe_allow_html=True)
-    _,c2,_=st.columns([1,2,1])
-    with c2:
+    _,c2b,_=st.columns([1,2,1])
+    with c2b:
         st.markdown('<div class="bG">',unsafe_allow_html=True)
         if st.button("🔄 New Round",use_container_width=True,key="tt2n"):
             st.session_state.update({"tb2":[""]*9,"turn2":"X","to2":False,"ts2":""}); st.rerun()
@@ -1880,7 +1793,7 @@ def page_ttt2p():
 # ═══════════════════════════════════════════════════════
 def page_dice2p():
     st.markdown("<h1 style='text-align:center;letter-spacing:3px'>🎲 DICE RACE — 2P</h1>",unsafe_allow_html=True)
-    st.markdown("<p style='text-align:center;color:#5566aa;font-family:Share Tech Mono,monospace'>First to 100 wins! Roll or Hold each turn.</p>",unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center;color:#aabbdd;font-family:Share Tech Mono,monospace;font-size:14px'>First to 100 wins! Roll or Hold each turn.</p>",unsafe_allow_html=True)
     if "dc2" not in st.session_state:
         st.session_state.update({"dc2":{"sc":[0,0],"turn":0,"cur":0,"dice":None,"over":False}})
     g=dict(st.session_state["dc2"]); sc=list(g["sc"]); turn=g["turn"]; cur=g["cur"]; over=g["over"]
@@ -1904,13 +1817,13 @@ def page_dice2p():
     st.markdown(f"<div class='inf' style='font-size:15px;padding:12px'>Turn: <b style='color:{cc[turn]}'>Player {turn+1}</b> &nbsp;·&nbsp; Current bank: <b style='color:{cc[turn]}'>{cur}</b></div>",unsafe_allow_html=True)
     st.markdown("<br>",unsafe_allow_html=True)
     if g["dice"]:
-        st.markdown(f"<div style='text-align:center;font-size:76px;filter:drop-shadow(0 0 16px {cc[turn]}80);animation:diceRoll .2s ease-out'>{FACES[g['dice']]}</div><style>@keyframes diceRoll{{from{{transform:rotate(-15deg) scale(.8)}}to{{transform:rotate(0) scale(1)}}}}</style>",unsafe_allow_html=True)
+        st.markdown(f"<div style='text-align:center;font-size:80px;filter:drop-shadow(0 0 16px {cc[turn]}80);animation:diceRoll .2s ease-out'>{FACES[g['dice']]}</div><style>@keyframes diceRoll{{from{{transform:rotate(-15deg) scale(.8)}}to{{transform:rotate(0) scale(1)}}}}</style>",unsafe_allow_html=True)
     st.markdown("<br>",unsafe_allow_html=True)
     c1,c2,_=st.columns([1,1,1])
     with c1:
         if st.button("🎲 Roll",use_container_width=True,key="dc2r"):
             d=random.randint(1,6); g["dice"]=d
-            if d==1: g["cur"]=0; g["turn"]=1-turn; g["dice"]=d
+            if d==1: g["cur"]=0; g["turn"]=1-turn
             else:
                 g["cur"]=cur+d
                 if sc[turn]+g["cur"]>=100:
@@ -1923,103 +1836,178 @@ def page_dice2p():
             st.session_state["dc2"]=g; st.rerun()
         st.markdown('</div>',unsafe_allow_html=True)
     for i in range(2):
-        st.markdown(f"<div style='font-size:12px;color:{cc[i]};margin:8px 0 3px;font-family:Share Tech Mono,monospace'>Player {i+1}: {sc[i]}/100</div>",unsafe_allow_html=True)
+        st.markdown(f"<div style='font-size:13px;color:{cc[i]};margin:8px 0 3px;font-family:Share Tech Mono,monospace;font-weight:700'>Player {i+1}: {sc[i]}/100</div>",unsafe_allow_html=True)
         st.progress(min(sc[i]/100,1.0))
 
 # ═══════════════════════════════════════════════════════
-#  MINESWEEPER 2P
+#  SUMO PUSH 2P — new creative 2P game
 # ═══════════════════════════════════════════════════════
-def _ms2_init():
-    rows=8; cols_n=8; mines=12
-    board=[[0]*cols_n for _ in range(rows)]
-    mset=set(random.sample(range(rows*cols_n),mines))
-    for p in mset: board[p//cols_n][p%cols_n]=-1
-    for r in range(rows):
-        for c in range(cols_n):
-            if board[r][c]==-1: continue
-            board[r][c]=sum(1 for dr in[-1,0,1] for dc in[-1,0,1] if 0<=r+dr<rows and 0<=c+dc<cols_n and board[r+dr][c+dc]==-1)
-    st.session_state.update({"ms2_b":board,"ms2_rev":set(),"ms2_turn":0,"ms2_sc":[0,0],"ms2_over":False})
-
-def page_ms2p():
-    st.markdown("<h1 style='text-align:center;letter-spacing:3px'>💣 MINESWEEPER — 2P</h1>",unsafe_allow_html=True)
-    st.markdown("<p style='text-align:center;color:#5566aa;font-family:Share Tech Mono,monospace'>Take turns revealing cells. Most safe cells wins!</p>",unsafe_allow_html=True)
-    if "ms2_b" not in st.session_state: _ms2_init()
-    b=st.session_state["ms2_b"]; rev=st.session_state["ms2_rev"]
-    turn=S("ms2_turn",0); sc=list(S("ms2_sc",[0,0])); over=S("ms2_over",False)
-    rows=8; cols_n=8; mines=12
-    cc=["#00f5ff","#ff006e"]
-    c1,c2,c3=st.columns(3)
-    with c1: st.metric("🟦 Player 1",sc[0])
-    with c2: st.metric("🟥 Player 2",sc[1])
-    with c3: st.metric("💣 Mines",mines)
-    if not over: st.markdown(f"<div class='inf'>Turn: <b style='color:{cc[turn]}'>Player {turn+1}</b></div>",unsafe_allow_html=True)
-    else:
-        w=sc.index(max(sc))+1 if sc[0]!=sc[1] else 0
-        e=earn(50)
-        st.markdown(f"<div class='ok' style='font-size:16px;padding:12px'>{'🏆 Player '+str(w)+' Wins!' if w else '🤝 Draw!'} +{e} coins</div>",unsafe_allow_html=True)
-        _,mc,_=st.columns([1,2,1])
-        with mc:
-            st.markdown('<div class="bG">',unsafe_allow_html=True)
-            if st.button("🔄 New Game",use_container_width=True,key="ms2n"): _ms2_init(); st.rerun()
-            st.markdown('</div>',unsafe_allow_html=True)
-        return
-    COLORS={0:"#334",1:"#00f5ff",2:"#39ff14",3:"#ff006e",4:"#bf5fff",5:"#ff7c00",6:"#ffd60a",7:"#fff",8:"#888"}
-    _,mc,_=st.columns([1,6,1])
-    with mc:
-        for r in range(rows):
-            rc=st.columns(cols_n)
-            for c in range(cols_n):
-                idx=r*cols_n+c; cell=b[r][c]
-                with rc[c]:
-                    if idx in rev:
-                        if cell==-1:
-                            st.markdown("""<div style="height:34px;background:linear-gradient(135deg,rgba(255,0,110,.18),rgba(255,0,110,.05));border:1px solid rgba(255,0,110,.45);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px">💥</div>""",unsafe_allow_html=True)
-                        else:
-                            col_c=COLORS.get(cell,"#fff"); txt=str(cell) if cell else "·"
-                            st.markdown(f"""<div style="height:34px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:{col_c};font-family:Share Tech Mono,monospace">{txt}</div>""",unsafe_allow_html=True)
-                    else:
-                        if st.button("?",key=f"ms2_{idx}_{len(rev)}",use_container_width=True):
-                            if idx in rev: st.rerun()
-                            cr,cc2=idx//cols_n,idx%cols_n
-                            if b[cr][cc2]==-1:
-                                rev.add(idx); st.session_state["ms2_rev"]=rev
-                                st.session_state["ms2_turn"]=1-turn
-                                if sum(1 for i in rev if b[i//cols_n][i%cols_n]!=-1)>=rows*cols_n-mines:
-                                    st.session_state["ms2_over"]=True
-                                st.rerun()
-                            else:
-                                stack=[idx]; gained=0
-                                while stack:
-                                    cur2=stack.pop()
-                                    if cur2 in rev: continue
-                                    rev.add(cur2); gained+=1
-                                    cr2,cc3=cur2//cols_n,cur2%cols_n
-                                    if b[cr2][cc3]==0:
-                                        for dr in[-1,0,1]:
-                                            for dc in[-1,0,1]:
-                                                ni=(cr2+dr)*cols_n+(cc3+dc)
-                                                if 0<=cr2+dr<rows and 0<=cc3+dc<cols_n and ni not in rev: stack.append(ni)
-                                sc[turn]+=gained; st.session_state["ms2_sc"]=sc
-                                st.session_state["ms2_rev"]=rev; st.session_state["ms2_turn"]=1-turn
-                                if sum(1 for i in rev if b[i//cols_n][i%cols_n]!=-1)>=rows*cols_n-mines:
-                                    st.session_state["ms2_over"]=True
-                                st.rerun()
+def page_sumo2p():
+    st.markdown("<h1 style='text-align:center;letter-spacing:3px'>🥊 SUMO PUSH — 2P</h1>",unsafe_allow_html=True)
+    st.markdown("<div class='inf' style='font-size:15px'>P1: A/D to move · P2: ←/→ to move · Push your opponent off the platform! First to 5 wins!</div>",unsafe_allow_html=True)
+    st.markdown("<br>",unsafe_allow_html=True)
+    _,col,_=st.columns([1,10,1])
+    with col:
+        components.html("""<!DOCTYPE html><html><head><meta charset="UTF-8">
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#04040f;display:flex;flex-direction:column;align-items:center;padding:10px;user-select:none;font-family:'Orbitron',sans-serif}
+canvas{border:2px solid rgba(255,0,110,.2);border-radius:12px;box-shadow:0 0 40px rgba(255,0,110,.08);display:block}
+.ov{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:linear-gradient(145deg,rgba(4,4,20,.97),rgba(8,8,28,.97));border:1px solid rgba(255,0,110,.5);border-radius:16px;padding:28px 36px;text-align:center;backdrop-filter:blur(20px)}
+.ov h2{color:#ff006e;font-family:'Orbitron',sans-serif;font-size:20px;margin-bottom:10px;text-shadow:0 0 16px rgba(255,0,110,.8)}
+.ov p{color:#aabbdd;font-size:13px;margin-bottom:16px}
+.ov button{background:linear-gradient(135deg,rgba(255,0,110,.2),rgba(255,0,110,.06));color:#ff006e;border:1px solid rgba(255,0,110,.5);padding:10px 24px;border-radius:8px;cursor:pointer;font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700}
+.wrap{position:relative}</style></head><body>
+<div class="wrap"><canvas id="c" width="560" height="340"></canvas>
+<div class="ov" id="ov"><h2>🥊 SUMO PUSH</h2><p>P1: A/D &nbsp;|&nbsp; P2: ←/→<br>Push opponent off the edge!<br>First to 5 wins!</p><button onclick="start()">▶ PLAY</button></div></div>
+<script>
+var W=560,H=340;
+var cv=document.getElementById('c'),ctx=cv.getContext('2d');
+var p1,p2,s1,s2,run,raf,keys={},parts7=[],frame=0;
+var PLAT={x:80,w:400,y:260,h:18};
+var PR=24; // player radius
+function makeP(x,color,dir){return{x:x,y:PLAT.y-PR,vx:0,color:color,dir:dir,grounded:true,w:0};}
+function start(){
+  document.getElementById('ov').style.display='none';
+  p1=makeP(PLAT.x+80,  '#00f5ff', 1);
+  p2=makeP(PLAT.x+PLAT.w-80,'#ff006e',-1);
+  if(!s1)s1=0;if(!s2)s2=0;
+  run=true;parts7=[];frame=0;
+  if(raf)cancelAnimationFrame(raf);loop();
+}
+document.addEventListener('keydown',function(e){keys[e.code]=true;['KeyA','KeyD','ArrowLeft','ArrowRight'].forEach(function(k){if(e.code===k)e.preventDefault();});});
+document.addEventListener('keyup',function(e){keys[e.code]=false;});
+function loop(){if(!run)return;update();draw();raf=requestAnimationFrame(loop);}
+function update(){
+  frame++;
+  // P1 controls
+  var p1acc=0,p2acc=0;
+  if(keys['KeyA'])p1acc=-0.55;
+  if(keys['KeyD'])p1acc=0.55;
+  if(keys['ArrowLeft'])p2acc=-0.55;
+  if(keys['ArrowRight'])p2acc=0.55;
+  p1.vx+=p1acc;p2.vx+=p2acc;
+  // Friction
+  p1.vx*=0.78;p2.vx*=0.78;
+  // Clamp speed
+  p1.vx=Math.max(-7,Math.min(7,p1.vx));
+  p2.vx=Math.max(-7,Math.min(7,p2.vx));
+  p1.x+=p1.vx;p2.x+=p2.vx;
+  // Collision between players
+  var dx=p2.x-p1.x;
+  var dist=Math.abs(dx);
+  if(dist<PR*2+4){
+    var overlap=PR*2+4-dist;
+    var push=overlap*0.25+Math.abs(p1.vx-p2.vx)*0.3;
+    if(dx>0){p1.vx-=push;p2.vx+=push*0.5;}
+    else{p1.vx+=push;p2.vx-=push*0.5;}
+    // Impact particles
+    if(Math.abs(p1.vx)>2)spark((p1.x+p2.x)/2,p1.y,'#ffd60a');
+  }
+  // Check fall off
+  var platL=PLAT.x,platR=PLAT.x+PLAT.w;
+  if(p1.x<platL-PR||p1.x>platR+PR){
+    spark(p1.x,p1.y,'#00f5ff');
+    s2++;checkEnd();return;
+  }
+  if(p2.x<platL-PR||p2.x>platR+PR){
+    spark(p2.x,p2.y,'#ff006e');
+    s1++;checkEnd();return;
+  }
+  // Keep on platform vertically
+  p1.y=PLAT.y-PR;p2.y=PLAT.y-PR;
+  parts7=parts7.filter(function(p){return p.l>0;});
+  parts7.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.vy+=0.15;p.l--;p.vx*=0.9;});
+}
+function spark(x,y,c){for(var i=0;i<14;i++)parts7.push({x:x,y:y,vx:(Math.random()-.5)*8,vy:-Math.random()*6-2,l:35,c:c,r:Math.random()*4+2});}
+function checkEnd(){
+  run=false;cancelAnimationFrame(raf);
+  var winner=s1>=5?'Player 1 Wins! 🎉':'Player 2 Wins! 🎉';
+  if(s1<5&&s2<5){
+    // Just reset round
+    setTimeout(function(){
+      p1=makeP(PLAT.x+80,'#00f5ff',1);
+      p2=makeP(PLAT.x+PLAT.w-80,'#ff006e',-1);
+      run=true;raf=requestAnimationFrame(loop);
+    },600);
+    return;
+  }
+  document.getElementById('ov').querySelector('h2').textContent=winner;
+  document.getElementById('ov').querySelector('p').textContent='P1: '+s1+' | P2: '+s2;
+  document.getElementById('ov').style.display='block';
+  s1=0;s2=0;
+}
+function draw(){
+  ctx.fillStyle='#04040f';ctx.fillRect(0,0,W,H);
+  // Stars bg
+  ctx.fillStyle='rgba(255,255,255,.3)';
+  for(var i=0;i<40;i++){
+    var sx=(i*137+frame*.2)%W,sy=(i*97+frame*.1)%H*.6;
+    ctx.beginPath();ctx.arc(sx,sy,.8,0,Math.PI*2);ctx.fill();
+  }
+  // Platform
+  var pg=ctx.createLinearGradient(PLAT.x,PLAT.y,PLAT.x,PLAT.y+PLAT.h);
+  pg.addColorStop(0,'#334466');pg.addColorStop(1,'#1a2233');
+  ctx.fillStyle=pg;ctx.beginPath();ctx.roundRect(PLAT.x,PLAT.y,PLAT.w,PLAT.h,6);ctx.fill();
+  ctx.strokeStyle='rgba(0,245,255,.3)';ctx.lineWidth=1.5;ctx.stroke();
+  // Edge danger zones
+  ctx.fillStyle='rgba(255,0,110,.15)';ctx.fillRect(PLAT.x,PLAT.y,30,PLAT.h);
+  ctx.fillRect(PLAT.x+PLAT.w-30,PLAT.y,30,PLAT.h);
+  // Scores
+  ctx.font='bold 28px Orbitron,monospace';ctx.textAlign='center';
+  ctx.fillStyle='rgba(0,245,255,.9)';ctx.shadowBlur=12;ctx.shadowColor='rgba(0,245,255,.6)';ctx.fillText(s1,120,50);
+  ctx.fillStyle='rgba(255,0,110,.9)';ctx.shadowColor='rgba(255,0,110,.6)';ctx.fillText(s2,W-120,50);ctx.shadowBlur=0;
+  ctx.font='11px monospace';ctx.fillStyle='rgba(255,255,255,.4)';ctx.fillText('FIRST TO 5',W/2,50);
+  // Particles
+  parts7.forEach(function(p){
+    ctx.globalAlpha=p.l/35;ctx.fillStyle=p.c;ctx.shadowBlur=6;ctx.shadowColor=p.c;
+    ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+  });ctx.globalAlpha=1;
+  // Players
+  [p1,p2].forEach(function(p){
+    if(!p)return;
+    // Shadow
+    ctx.fillStyle='rgba(0,0,0,.4)';ctx.beginPath();ctx.ellipse(p.x,PLAT.y+2,PR*.8,6,0,0,Math.PI*2);ctx.fill();
+    // Body glow
+    ctx.shadowBlur=18;ctx.shadowColor=p.color;
+    // Body gradient
+    var rg=ctx.createRadialGradient(p.x-PR*.3,p.y-PR*.3,2,p.x,p.y,PR);
+    rg.addColorStop(0,'#fff');rg.addColorStop(.4,p.color);rg.addColorStop(1,p.color+'88');
+    ctx.fillStyle=rg;ctx.beginPath();ctx.arc(p.x,p.y,PR,0,Math.PI*2);ctx.fill();
+    ctx.shadowBlur=0;
+    // Eyes
+    var ex=p.vx>0?6:-6;
+    ctx.fillStyle='#04040f';ctx.beginPath();ctx.arc(p.x+ex,p.y-6,4,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(p.x+ex+1,p.y-7,1.5,0,Math.PI*2);ctx.fill();
+    // Speed indicator
+    if(Math.abs(p.vx)>1){
+      ctx.fillStyle=p.color;ctx.font='bold 10px monospace';ctx.textAlign='center';
+      ctx.fillText(p.vx>0?'>>>':'<<<',p.x,p.y+PR+14);
+    }
+    // Charge indicator
+    var spd=Math.abs(p.vx)/7;
+    if(spd>0.1){
+      ctx.beginPath();ctx.arc(p.x,p.y,PR+5,0,Math.PI*2*spd);
+      ctx.strokeStyle=p.color+'aa';ctx.lineWidth=2;ctx.stroke();
+    }
+  });
+}
+ctx.fillStyle='#04040f';ctx.fillRect(0,0,W,H);
+var s1=0,s2=0;
+</script></body></html>""", height=400, scrolling=False)
 
 # ═══════════════════════════════════════════════════════
-#  SHOP
+#  SHOP — bigger fonts, better visibility
 # ═══════════════════════════════════════════════════════
 def page_shop():
     coins=S("coins",0)
     st.markdown(f"""<div style="text-align:center;margin-bottom:22px">
-<h1 style="letter-spacing:3px">🛒 UPGRADE SHOP</h1>
-<div style="display:inline-flex;align-items:center;gap:12px;padding:12px 24px;
-  background:linear-gradient(135deg,rgba(255,214,10,.1),rgba(255,214,10,.03));
-  border:1px solid rgba(255,214,10,.35);border-radius:12px;margin-top:8px;
-  box-shadow:0 0 24px rgba(255,214,10,.08)">
-  <span style="font-size:24px">💰</span>
-  <span style="font-family:'Orbitron',sans-serif;font-size:24px;font-weight:900;color:#ffd60a;
+<h1 style="letter-spacing:3px;font-size:28px">🛒 UPGRADE SHOP</h1>
+<div style="display:inline-flex;align-items:center;gap:12px;padding:14px 28px;
+  background:linear-gradient(135deg,rgba(255,214,10,.12),rgba(255,214,10,.04));
+  border:1px solid rgba(255,214,10,.5);border-radius:12px;margin-top:10px">
+  <span style="font-size:28px">💰</span>
+  <span style="font-family:'Orbitron',sans-serif;font-size:28px;font-weight:900;color:#ffd60a;
     text-shadow:0 0 12px rgba(255,214,10,.7)">{coins:,}</span>
-  <span style="color:#5566aa;font-size:12px;font-family:Share Tech Mono,monospace">coins available</span>
+  <span style="color:#aabbdd;font-size:14px;font-family:Rajdhani,sans-serif;font-weight:700">coins available</span>
 </div></div>""", unsafe_allow_html=True)
 
     by_game={}
@@ -2032,57 +2020,50 @@ def page_shop():
             cols=st.columns(min(len(items),3))
             for i,(uid,item) in enumerate(items):
                 cnt=oc(uid); mx=item["max"]; maxed=cnt>=mx; can=coins>=item["price"] and not maxed
-                col_="#39ff14" if maxed else("#ffd60a" if can else "#5566aa")
-                bg_=f"linear-gradient(145deg,rgba(57,255,20,.06),rgba(57,255,20,.01))" if maxed else "linear-gradient(145deg,rgba(255,255,255,.03),rgba(0,0,0,.2))"
-                brd_="rgba(57,255,20,.4)" if maxed else("rgba(255,214,10,.32)" if can else "rgba(255,255,255,.06)")
-                badge=(f"<div style='position:absolute;top:8px;right:8px;background:rgba(57,255,20,.15);border:1px solid rgba(57,255,20,.45);border-radius:5px;padding:2px 7px;font-size:9px;color:#39ff14;font-weight:700;font-family:Orbitron,sans-serif;letter-spacing:1px'>MAX</div>") if maxed else \
-                      (f"<div style='position:absolute;top:8px;right:8px;background:rgba(0,245,255,.1);border:1px solid rgba(0,245,255,.3);border-radius:5px;padding:2px 7px;font-size:9px;color:#00f5ff;font-family:Share Tech Mono,monospace'>{cnt}/{mx}</div>") if cnt else ""
+                if maxed: col_="#39ff14"; bg_="linear-gradient(145deg,rgba(57,255,20,.1),rgba(57,255,20,.03))"; brd_="rgba(57,255,20,.5)"
+                elif can: col_="#ffd60a"; bg_="linear-gradient(145deg,rgba(255,214,10,.1),rgba(255,214,10,.03))"; brd_="rgba(255,214,10,.45)"
+                else: col_="#aabbdd"; bg_="linear-gradient(145deg,rgba(255,255,255,.04),rgba(0,0,0,.2))"; brd_="rgba(255,255,255,.1)"
+                badge=""
+                if maxed: badge=f"<div style='position:absolute;top:10px;right:10px;background:rgba(57,255,20,.2);border:1px solid rgba(57,255,20,.6);border-radius:6px;padding:3px 9px;font-size:11px;color:#39ff14;font-weight:700;font-family:Orbitron,sans-serif'>MAX</div>"
+                elif cnt: badge=f"<div style='position:absolute;top:10px;right:10px;background:rgba(0,245,255,.12);border:1px solid rgba(0,245,255,.4);border-radius:6px;padding:3px 9px;font-size:11px;color:#00f5ff;font-family:Share Tech Mono,monospace'>{cnt}/{mx}</div>"
                 with cols[i%3]:
                     st.markdown(f"""<div style="background:{bg_};border:1px solid {brd_};border-radius:14px;
-padding:18px;text-align:center;margin-bottom:8px;min-height:145px;position:relative;
-box-shadow:0 4px 20px rgba(0,0,0,.3){',0 0 20px rgba(57,255,20,.1)' if maxed else ''};
-transition:all .2s ease;">
+padding:20px 16px;text-align:center;margin-bottom:10px;min-height:165px;position:relative;">
 {badge}
-<div style="font-size:32px;margin-bottom:8px;filter:drop-shadow(0 0 10px {col_}60)">{item['icon']}</div>
-<div style="font-weight:700;font-size:13px;color:{col_};margin-bottom:4px;font-family:'Orbitron',sans-serif;letter-spacing:.5px">{item['name']}</div>
-<div style="color:#5566aa;font-size:11px;margin-bottom:10px;line-height:1.5;font-family:'Rajdhani',sans-serif">{item['desc']}</div>
-<div style="font-family:'Orbitron',sans-serif;font-size:14px;font-weight:900;
-  color:{'#39ff14' if maxed else '#ffd60a'};text-shadow:0 0 8px {'rgba(57,255,20,.5)' if maxed else 'rgba(255,214,10,.5)'}">{'MAX ✓' if maxed else f'💰 {item["price"]:,}'}</div>
+<div style="font-size:36px;margin-bottom:10px">{item['icon']}</div>
+<div style="font-weight:700;font-size:15px;color:{col_};margin-bottom:6px;font-family:'Orbitron',sans-serif;letter-spacing:.5px">{item['name']}</div>
+<div style="color:#aabbdd;font-size:13px;margin-bottom:12px;line-height:1.5;font-family:'Rajdhani',sans-serif">{item['desc']}</div>
+<div style="font-family:'Orbitron',sans-serif;font-size:16px;font-weight:900;color:{'#39ff14' if maxed else '#ffd60a'};text-shadow:0 0 8px {'rgba(57,255,20,.5)' if maxed else 'rgba(255,214,10,.5)'}">{'✓ MAXED' if maxed else '💰 '+str(item['price'])}</div>
 </div>""",unsafe_allow_html=True)
                     if not maxed:
+                        label="🛒 Buy" if can else f"🔒 Need {item['price']-coins} more"
                         st.markdown(f'<div class="{"bg" if can else ""}">',unsafe_allow_html=True)
-                        label="🛒 Buy" if can else "🔒 Need more"
                         if st.button(label,key=f"sh_{uid}_{cnt}",use_container_width=True,disabled=not can):
                             ok,msg=buy_item(uid)
                             if ok: st.balloons(); st.rerun()
-                            else: st.markdown(f"<div class='err'>{msg}</div>",unsafe_allow_html=True)
                         st.markdown('</div>',unsafe_allow_html=True)
 
     owned={k:v for k,v in S("owned",{}).items() if v>0}
     if owned:
         st.markdown("---")
-        st.markdown("<h3 style='font-size:14px;letter-spacing:2px'>🎒 MY UPGRADES</h3>",unsafe_allow_html=True)
-        b2="".join(f"<span style='display:inline-flex;padding:5px 12px;"
-                  f"background:linear-gradient(135deg,rgba(57,255,20,.07),rgba(57,255,20,.02));"
-                  f"border:1px solid rgba(57,255,20,.3);border-radius:14px;font-size:11px;"
-                  f"font-weight:700;color:#39ff14;margin:3px;font-family:Rajdhani,sans-serif;"
-                  f"box-shadow:0 0 10px rgba(57,255,20,.07)'>{SHOP[uid]['icon']} {SHOP[uid]['name']}"
-                  f"{' ×'+str(v) if v>1 else ''}</span>"
+        st.markdown("<h3 style='font-size:16px;letter-spacing:2px;color:#aabbdd'>🎒 MY UPGRADES</h3>",unsafe_allow_html=True)
+        b2="".join(f"<span style='display:inline-flex;padding:7px 16px;background:linear-gradient(135deg,rgba(57,255,20,.1),rgba(57,255,20,.03));border:1px solid rgba(57,255,20,.4);border-radius:14px;font-size:13px;font-weight:700;color:#39ff14;margin:4px;font-family:Rajdhani,sans-serif'>{SHOP[uid]['icon']} {SHOP[uid]['name']}{' ×'+str(v) if v>1 else ''}</span>"
                   for uid,v in owned.items() if uid in SHOP)
-        st.markdown(f"<div style='display:flex;flex-wrap:wrap;gap:3px'>{b2}</div>",unsafe_allow_html=True)
+        st.markdown(f"<div style='display:flex;flex-wrap:wrap;gap:4px'>{b2}</div>",unsafe_allow_html=True)
 
     st.markdown("---")
-    st.markdown("<h3 style='font-size:14px;letter-spacing:2px'>💰 HOW TO EARN COINS</h3>",unsafe_allow_html=True)
-    tips=[("🐍 Snake","Play & set high scores"),("🐦 Flappy","Pass pipes"),("🧠 Memory","Fewer moves = more coins"),
-          ("❌ XO","Win vs AI = 50 coins"),("👆 Clicker","Clicks × 2"),("🎰 Slots","Match symbols"),
-          ("🏓 Pong","Beat the AI"),("💣 Mines","Clear the field = 80 coins"),("🎯 Targets","Hit targets"),("🎲 Dice","Win race")]
-    cols=st.columns(5)
-    for i,(ico,tip) in enumerate(tips):
-        with cols[i%5]:
-            st.markdown(f"""<div style="background:linear-gradient(145deg,rgba(0,245,255,.03),rgba(0,0,0,.2));
-border:1px solid rgba(0,245,255,.08);border-radius:10px;padding:12px;text-align:center;margin-bottom:8px">
-<div style="font-size:22px;margin-bottom:5px">{ico}</div>
-<div style="color:#5566aa;font-size:10px;font-family:'Rajdhani',sans-serif">{tip}</div></div>""",unsafe_allow_html=True)
+    st.markdown("<h3 style='font-size:16px;letter-spacing:2px;color:#aabbdd'>💰 HOW TO EARN COINS</h3>",unsafe_allow_html=True)
+    tips=[("🐍","Snake","Play & set high scores"),("🐦","Flappy","Pass pipes"),("🧠","Memory","Fewer moves = more"),
+          ("❌","XO","Win vs AI = 50 coins"),("👆","Clicker","Clicks × 2 coins"),("🎰","Slots","Match symbols"),
+          ("🏓","Pong","Beat the AI"),("💣","Mines","Clear field = 80"),("🔢","Guess","Fewer guesses = more"),
+          ("🎨","Paint","Tiles × 5 coins")]
+    tip_cols=st.columns(5)
+    for i,(ico,name,tip) in enumerate(tips):
+        with tip_cols[i%5]:
+            st.markdown(f"""<div style="background:rgba(0,245,255,.04);border:1px solid rgba(0,245,255,.1);border-radius:10px;padding:14px;text-align:center;margin-bottom:8px">
+<div style="font-size:24px;margin-bottom:6px">{ico}</div>
+<div style="color:#00f5ff;font-size:12px;font-weight:700;font-family:'Orbitron',sans-serif;margin-bottom:4px">{name}</div>
+<div style="color:#aabbdd;font-size:12px;font-family:'Rajdhani',sans-serif">{tip}</div></div>""",unsafe_allow_html=True)
 
 # ═══════════════════════════════════════════════════════
 #  ROUTER
@@ -2098,12 +2079,12 @@ ROUTES = {
     "pong":        page_pong,
     "minesweeper": page_minesweeper,
     "guess":       page_guess,
-    "targets":     page_targets,
+    "paintrace":   page_paintrace,
     "wordgame":    page_wordgame,
     "pong2p":      page_pong2p,
     "ttt2p":       page_ttt2p,
     "dice2p":      page_dice2p,
-    "ms2p":        page_ms2p,
+    "sumo2p":      page_sumo2p,
     "shop":        page_shop,
 }
 
