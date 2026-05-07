@@ -979,7 +979,8 @@ buildGrid();
     # Show current state info
     if fl:
         vis=[f"Card {i+1}: {EMJ[b[i]]}" for i in sorted(set(fl)|mm)]
-        if vis: st.markdown(f"<div class='inf' style='font-size:12px;margin-bottom:8px'>Flipped: {' · '.join([f\"{EMJ[b[i]]}\" for i in fl])}</div>",unsafe_allow_html=True)
+        flipped_emojis = ' · '.join([EMJ[b[i]] for i in fl])
+        if vis: st.markdown(f"<div class='inf' style='font-size:12px;margin-bottom:8px'>Flipped: {flipped_emojis}</div>",unsafe_allow_html=True)
 
     # Click buttons that actually work with Streamlit
     available=[i for i in range(16) if i not in mm and i not in fl and can_flip]
